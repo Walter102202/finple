@@ -9,7 +9,7 @@ create table if not exists ley_chunks (
   url_oficial     text         not null,
   area_skill      text         not null,
   tokens_aprox    int,
-  embedding       vector(512)  not null,
+  embedding       vector(1536) not null,
   ingested_at     timestamptz  default now(),
   unique (id_norma, articulo_num)
 );
@@ -29,7 +29,7 @@ create policy "anon_can_read_ley_chunks"
   using (true);
 
 create or replace function match_ley_chunks(
-  query_embedding vector(512),
+  query_embedding vector(1536),
   match_count     int default 6,
   filter_area     text default null
 )

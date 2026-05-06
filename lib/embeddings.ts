@@ -1,19 +1,17 @@
-const VOYAGE_URL = 'https://api.voyageai.com/v1/embeddings'
-const MODEL = 'voyage-3-lite'
-export const EMBEDDING_DIM = 512
+const OPENAI_URL = 'https://api.openai.com/v1/embeddings'
+const MODEL = 'text-embedding-3-small'
+export const EMBEDDING_DIM = 1536
 
-type VoyageInputType = 'document' | 'query'
-
-type VoyageResponse = {
+type OpenaiResponse = {
   data: Array<{ embedding: number[]; index: number }>
   model: string
-  usage: { total_tokens: number }
+  usage: { prompt_tokens: number; total_tokens: number }
 }
 
-async function callVoyage(input: string[], inputType: VoyageInputType): Promise<number[][]> {
-  const key = process.env.VOYAGE_API_KEY
-  if (!key) throw new Error('Falta VOYAGE_API_KEY en el entorno.')
-  const res = await fetch(VOYAGE_URL, {
+async function callOpenai(input: string[]): Promise<number[][]> {
+  const key = process.env.OPENAI_API_KEY
+  if (!key) throw new Error('Falta OPENAI_API_KEY en el entorno.')
+  const res = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -22,16 +20,14 @@ async function callVoyage(input: string[], inputType: VoyageInputType): Promise<
     body: JSON.stringify({
       input,
       model: MODEL,
-      input_type: inputType,
-      output_dimension: EMBEDDING_DIM,
     }),
     signal: AbortSignal.timeout(30_000),
   })
   if (!res.ok) {
     const body = await res.text().catch(() => '')
-    throw new Error(`Voyage HTTP ${res.status}: ${body.slice(0, 400)}`)
+    throw new Error(`OpenAI embeddings HTTP ${res.status}: ${body.slice(0, 400)}`)
   }
-  const json = (await res.json()) as VoyageResponse
+  const json = (await res.json()) as OpenaiResponse
   return json.data
     .slice()
     .sort((a, b) => a.index - b.index)
@@ -40,10 +36,10 @@ async function callVoyage(input: string[], inputType: VoyageInputType): Promise<
 
 export async function embedDocuments(texts: string[]): Promise<number[][]> {
   if (texts.length === 0) return []
-  return callVoyage(texts, 'document')
+  return callOpenai(texts)
 }
 
 export async function embedQuery(text: string): Promise<number[]> {
-  const [v] = await callVoyage([text], 'query')
+  const [v] = await callOpenai([text])
   return v
 }

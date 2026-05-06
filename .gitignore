@@ -19,3 +19,5 @@ scripts/dump-*.xml
 
 # Briefing privado del proyecto — no se publica
 info/
+
+.vercel
