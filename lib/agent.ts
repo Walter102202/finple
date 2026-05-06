@@ -41,8 +41,10 @@ export async function* runFinpleAgent(
 ): AsyncGenerator<FinpleEvent> {
   const prompt = composePrompt(message, history)
   const inflightTools = new Map<string, string>()
+  console.log('[agent] start, cwd=' + process.cwd() + ', prompt.len=' + prompt.length)
 
   try {
+    let messageCount = 0
     for await (const msg of query({
       prompt,
       options: {
@@ -59,6 +61,8 @@ export async function* runFinpleAgent(
         includePartialMessages: true,
       },
     }) as AsyncGenerator<SDKMessage>) {
+      messageCount += 1
+      if (messageCount <= 3) console.log('[agent] msg #' + messageCount + ' type=' + (msg as any).type)
       if (msg.type === 'stream_event') {
         const ev = (msg as { event?: unknown }).event as
           | {
@@ -106,7 +110,9 @@ export async function* runFinpleAgent(
         return
       }
     }
+    console.log('[agent] loop done, total msgs=' + messageCount)
   } catch (e) {
+    console.error('[agent] caught error:', e)
     yield { type: 'error', message: e instanceof Error ? e.message : String(e) }
   }
 }
