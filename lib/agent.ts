@@ -59,6 +59,9 @@ export async function* runFinpleAgent(
         skills: 'all',
         maxTurns: 8,
         includePartialMessages: true,
+        env: { ...process.env, ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ?? '' } as Record<string, string>,
+        stderr: (data) => console.error('[claude-stderr]', data),
+        debug: true,
       },
     }) as AsyncGenerator<SDKMessage>) {
       messageCount += 1
