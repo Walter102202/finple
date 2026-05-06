@@ -1,0 +1,9 @@
+[
+  { "skill": "fintech_inversiones",       "idNorma": "1187323", "alias": "Ley 21.521 Fintec" },
+  { "skill": "creditos_consumo",          "idNorma": "1170464", "alias": "Ley 21.398 Pro Consumidor" },
+  { "skill": "cobros_indebidos",          "idNorma": "61438",   "alias": "Ley 19.496 Protección Consumidor" },
+  { "skill": "fraude_suplantacion",       "idNorma": "1177743", "alias": "Ley 21.459 Delitos Informáticos" },
+  { "skill": "datos_personales",          "idNorma": "141599",  "alias": "Ley 19.628 Protección Datos" },
+  { "skill": "datos_personales",          "idNorma": "1209272", "alias": "Ley 21.719 Datos Personales (vigencia 1-dic-2026)" },
+  { "skill": "regulacion_autoridades",    "idNorma": "1202434", "alias": "Ley 21.663 Marco Ciberseguridad ANCI" }
+]

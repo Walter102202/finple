@@ -1,0 +1,21 @@
+node_modules
+.next
+out
+.env*
+!.env.local.example
+!.env.example
+.DS_Store
+*.log
+.vercel
+next-env.d.ts
+tsconfig.tsbuildinfo
+*.dev.html
+
+# Settings locales de Claude Code (ruta-específicas, no portátiles)
+.claude/settings.local.json
+
+# Dumps temporales del parser BCN
+scripts/dump-*.xml
+
+# Briefing privado del proyecto — no se publica
+info/

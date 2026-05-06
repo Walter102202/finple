@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: #F5F1E8;
+  color: #191919;
+}
+
+::selection {
+  background: rgba(217, 119, 87, 0.25);
+}
+
+@keyframes finple-bounce {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  25% { transform: translate3d(0, -16px, 0) scale(1.03); }
+  55% { transform: translate3d(0, 0, 0) scale(0.98); }
+  80% { transform: translate3d(0, -6px, 0) scale(1.01); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.animate-finple-bounce {
+  animation: finple-bounce 620ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
