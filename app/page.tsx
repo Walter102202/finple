@@ -11,7 +11,7 @@ export default function Page() {
     <main className="relative min-h-screen">
       <BackgroundGlow />
 
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
+      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 xl:px-12">
         <div className="flex items-center gap-2 text-sm font-medium tracking-wide text-ink-soft">
           <span className="inline-block h-2 w-2 rounded-full bg-coral" />
           <span>Claude Impact Lab · Línea 01 — Inclusión Financiera</span>
@@ -29,19 +29,19 @@ export default function Page() {
         </nav>
       </header>
 
-      <section className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-6 pb-24 pt-12 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pt-20">
+      <section className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-6 pb-24 pt-12 sm:px-8 lg:px-10 xl:px-12 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pt-20">
         <div className="order-2 md:order-1">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-clay">
             Para dudas de luca$
           </p>
 
           <div className="inline-block">
-            <h1 className="font-serif text-7xl font-medium leading-none tracking-tight md:text-[8.5rem]">
+            <h1 className="font-serif text-6xl font-medium leading-none tracking-tight sm:text-7xl lg:text-[6.5rem] xl:text-[8.5rem]">
               <span className="text-coral">FIN</span>
               <span className="text-ink">PLE</span>
             </h1>
 
-            <p className="mt-7 text-center font-serif text-2xl italic tracking-wide text-ink-soft md:text-3xl">
+            <p className="mt-7 text-center font-serif text-xl italic tracking-wide text-ink-soft sm:text-2xl lg:text-3xl">
               <span className="font-semibold text-coral">Fin</span>
               <span>anzas en sim</span>
               <span className="font-semibold text-ink">ple</span>
@@ -70,7 +70,7 @@ export default function Page() {
       <Ejemplos />
       <Fuentes />
 
-      <footer className="relative mx-auto max-w-6xl px-6 pb-10 text-xs text-ink-soft/70">
+      <footer className="relative mx-auto max-w-6xl px-6 pb-10 text-xs text-ink-soft/70 sm:px-8 lg:px-10 xl:px-12">
         <div className="flex flex-col items-start justify-between gap-2 border-t border-ink/10 pt-6 md:flex-row md:items-center">
           <span>
             Hecho con Claude · CMF · SERNAC · BCN. Las respuestas citan la fuente oficial cuando
@@ -113,7 +113,7 @@ function ComoFunciona() {
   ]
 
   return (
-    <section id="como-funciona" className="relative mx-auto max-w-6xl px-6 pb-20 pt-4">
+    <section id="como-funciona" className="relative mx-auto max-w-6xl px-6 pb-20 pt-4 sm:px-8 lg:px-10 xl:px-12">
       <div className="mb-10">
         <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
           Cómo funciona
@@ -128,7 +128,7 @@ function ComoFunciona() {
         </p>
       </div>
 
-      <ol className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {steps.map((s) => (
           <li
             key={s.n}
@@ -190,7 +190,7 @@ function Ejemplos() {
   ]
 
   return (
-    <section id="ejemplos" className="relative mx-auto max-w-6xl px-6 pb-20">
+    <section id="ejemplos" className="relative mx-auto max-w-6xl px-6 pb-20 sm:px-8 lg:px-10 xl:px-12">
       <div className="mb-10">
         <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
           Ejemplos de uso
@@ -204,7 +204,7 @@ function Ejemplos() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         {examples.map((e) => (
           <article
             key={e.tag}
@@ -254,7 +254,7 @@ function Fuentes() {
   ]
 
   return (
-    <section id="fuentes" className="relative mx-auto max-w-6xl px-6 pb-24">
+    <section id="fuentes" className="relative mx-auto max-w-6xl px-6 pb-24 sm:px-8 lg:px-10 xl:px-12">
       <div className="mb-10">
         <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
           Fuentes
@@ -268,7 +268,7 @@ function Fuentes() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-y-0">
         <div>
           <h3 className="mb-4 font-serif text-xl font-medium text-ink">Leyes indexadas</h3>
           <ul className="space-y-3">
