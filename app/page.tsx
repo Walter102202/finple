@@ -88,7 +88,7 @@ function ComoFunciona() {
     {
       n: '1',
       title: 'Analizar tu caso',
-      body: 'Lee tu relato y te lo devuelve en simple. Cierra con un "¿es así?" antes de seguir.',
+      body: 'Lee tu relato y te lo devuelve en simple. Confirma contigo antes de seguir.',
     },
     {
       n: '2',
