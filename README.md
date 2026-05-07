@@ -283,6 +283,35 @@ npm run dev
 
 ---
 
+## Pendientes técnicos
+
+### Prompt caching del system prompt + tool schemas
+
+Hoy cada turno paga input tokens completos por el system prompt (~2k tokens) y los esquemas de los 5 MCP tools. Con Sonnet 4.6 (mínimo cacheable 2048 tokens), esa porción es estable y se puede cachear con costo de lectura ~0.1× del normal — ahorro estimado ~80-90% del input estable después del primer turno.
+
+El Agent SDK no usa `cache_control: { type: 'ephemeral' }` directamente; expone el marker `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` para separar la porción cacheable de la dinámica:
+
+```ts
+import { SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from '@anthropic-ai/claude-agent-sdk'
+
+systemPrompt: [
+  SYSTEM_PROMPT_STATIC,           // identidad + flujo + reglas + tools docs
+  SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+  buildDynamicSection(),          // solo `Hoy es {{TODAY_CL}}`
+],
+```
+
+**Cambios concretos:**
+- `lib/system-prompt.ts` — separar `SYSTEM_PROMPT_STATIC` (sin `{{TODAY_CL}}`) y `buildDynamicSection()` (solo la fecha del día).
+- `lib/agent.ts:85` — reemplazar `systemPrompt: buildSystemPrompt()` por el array con boundary.
+- `lib/agent.ts:178` — loggear `usage.cache_read_input_tokens` y `cache_creation_input_tokens` desde el `result` message para verificar hits.
+
+**Verificación:** correr `tsx scripts/smoke-mcp-agent.ts` dos veces seguidas — la segunda corrida debe mostrar `cache_read > 2000`.
+
+**Trampa:** cualquier byte que cambie en `SYSTEM_PROMPT_STATIC` invalida el cache. Documentar en comentario que nada con `process.env.*` o timestamps puede vivir antes del boundary.
+
+---
+
 ## Roadmap post-Lab
 
 - Persistencia de conversaciones (tabla `conversations` en Supabase con RLS por usuario).
