@@ -122,8 +122,9 @@ function ComoFunciona() {
           Te escucho, ordeno tu caso y te muestro la ley.
         </h2>
         <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Finple sigue el flujo que usaría un funcionario de la CMF: nunca diagnostica antes de
-          entender. Cada paso ocurre en la conversación, no en un formulario.
+          Finple se preocupa de entender bien tu caso, te ayuda a resolver dudas y te da pasos a
+          seguir. Siempre consultando fuentes oficiales y nunca dando un diagnóstico antes de
+          entender.
         </p>
       </div>
 
