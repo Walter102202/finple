@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="fur" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="80%" stop-color="#FBF7EE"/>
+      <stop offset="100%" stop-color="#EDE6D6"/>
+    </radialGradient>
+    <linearGradient id="ear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0DFC7"/>
+      <stop offset="100%" stop-color="#D9C3A2"/>
+    </linearGradient>
+    <linearGradient id="tongue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E89AA0"/>
+      <stop offset="100%" stop-color="#D7848C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ears -->
+  <path d="M16 24 Q9 30 8 40 Q9 50 18 50 Q22 47 22 41 Q22 32 20 26 Q18 22 16 24Z" fill="url(#ear)"/>
+  <path d="M48 24 Q55 30 56 40 Q55 50 46 50 Q42 47 42 41 Q42 32 44 26 Q46 22 48 24Z" fill="url(#ear)"/>
+
+  <!-- curly fur halo -->
+  <g fill="url(#fur)">
+    <circle cx="20" cy="22" r="6"/>
+    <circle cx="26" cy="16" r="6"/>
+    <circle cx="32" cy="14" r="5.5"/>
+    <circle cx="38" cy="16" r="6"/>
+    <circle cx="44" cy="22" r="6"/>
+    <circle cx="18" cy="34" r="6"/>
+    <circle cx="46" cy="34" r="6"/>
+    <circle cx="22" cy="48" r="7"/>
+    <circle cx="32" cy="52" r="7"/>
+    <circle cx="42" cy="48" r="7"/>
+  </g>
+
+  <!-- head -->
+  <ellipse cx="32" cy="34" rx="17" ry="16" fill="url(#fur)"/>
+
+  <!-- top tuft -->
+  <g fill="#FFFFFF">
+    <circle cx="29" cy="16" r="3"/>
+    <circle cx="32" cy="13" r="3.2"/>
+    <circle cx="35" cy="16" r="3"/>
+  </g>
+
+  <!-- eyes -->
+  <circle cx="25" cy="33" r="2.4" fill="#191919"/>
+  <circle cx="39" cy="33" r="2.4" fill="#191919"/>
+  <circle cx="25.6" cy="32.2" r="0.8" fill="#FFFFFF"/>
+  <circle cx="39.6" cy="32.2" r="0.8" fill="#FFFFFF"/>
+
+  <!-- cheeks -->
+  <ellipse cx="20" cy="40" rx="3" ry="1.6" fill="#D97757" opacity="0.20"/>
+  <ellipse cx="44" cy="40" rx="3" ry="1.6" fill="#D97757" opacity="0.20"/>
+
+  <!-- nose -->
+  <path d="M32 39 Q28 38.5 27.5 41 Q27.5 43.5 32 44.5 Q36.5 43.5 36.5 41 Q36 38.5 32 39Z" fill="#191919"/>
+
+  <!-- tongue -->
+  <path d="M28 44 Q27.5 48 28 52 Q29 55 32 56 Q35 55 36 52 Q36.5 48 36 44 Q34 45 32 45 Q30 45 28 44Z" fill="url(#tongue)"/>
+  <path d="M32 46 Q32 52 32 55" stroke="#C97480" stroke-width="0.6" stroke-linecap="round" fill="none" opacity="0.7"/>
+</svg>
