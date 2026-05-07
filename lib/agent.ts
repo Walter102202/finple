@@ -1,7 +1,7 @@
 import { query, type SDKMessage, type SDKUserMessage } from '@anthropic-ai/claude-agent-sdk'
 import type { ContentBlockParam, MessageParam } from '@anthropic-ai/sdk/resources/messages'
 import { finpleMcpServer, FINPLE_TOOL_NAMES } from './tools-mcp'
-import { SYSTEM_PROMPT } from './system-prompt'
+import { buildSystemPrompt } from './system-prompt'
 
 export type FinpleEvent =
   | { type: 'text'; text: string }
@@ -75,7 +75,7 @@ export async function* runFinpleAgent(
       options: {
         cwd: process.cwd(),
         model: 'claude-sonnet-4-6',
-        systemPrompt: SYSTEM_PROMPT,
+        systemPrompt: buildSystemPrompt(),
         mcpServers: { 'finple-corpus': finpleMcpServer },
         allowedTools: [...FINPLE_TOOL_NAMES, 'Skill'],
         settingSources: ['project'],
