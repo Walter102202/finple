@@ -20,4 +20,8 @@ scripts/dump-*.xml
 # Briefing privado del proyecto — no se publica
 info/
 
+# Instrucciones privadas para Claude Code — no se publican
+CLAUDE.md
+CLAUDE.local.md
+
 .vercel
