@@ -336,9 +336,7 @@ function Fuentes() {
 
 function BackgroundGlow() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-      <div className="absolute -right-32 -top-40 h-[520px] w-[520px] rounded-full bg-coral/15 blur-3xl" />
-      <div className="absolute -left-40 top-1/3 h-[420px] w-[420px] rounded-full bg-tan/40 blur-3xl" />
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.35]"
         style={{
