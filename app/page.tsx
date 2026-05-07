@@ -11,7 +11,7 @@ export default function Page() {
     <main className="relative min-h-screen">
       <BackgroundGlow />
 
-      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 xl:px-12">
+      <header className="relative mx-auto flex max-w-5xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 xl:px-12">
         <div className="flex items-center gap-2 text-sm font-medium tracking-wide text-ink-soft">
           <span className="inline-block h-2 w-2 rounded-full bg-coral" />
           <span>Claude Impact Lab · Línea 01 — Inclusión Financiera</span>
@@ -29,7 +29,7 @@ export default function Page() {
         </nav>
       </header>
 
-      <section className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-6 pb-24 pt-12 sm:px-8 lg:px-10 xl:px-12 md:grid-cols-[1.25fr_1fr] md:gap-16 md:pt-20">
+      <section className="relative mx-auto grid max-w-5xl grid-cols-1 items-start gap-10 px-6 pb-20 pt-10 sm:px-8 lg:px-10 xl:px-12 md:grid-cols-[1.25fr_1fr] md:gap-14 md:pb-24 md:pt-16">
         <div className="order-2 md:order-1">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-clay">
             Para dudas de luca$
@@ -70,7 +70,7 @@ export default function Page() {
       <Ejemplos />
       <Fuentes />
 
-      <footer className="relative mx-auto max-w-6xl px-6 pb-10 text-xs text-ink-soft/70 sm:px-8 lg:px-10 xl:px-12">
+      <footer className="relative mx-auto max-w-5xl px-6 pb-10 pt-10 text-xs text-ink-soft/70 sm:px-8 lg:px-10 xl:px-12">
         <div className="flex flex-col items-start justify-between gap-2 border-t border-ink/10 pt-6 md:flex-row md:items-center">
           <span>
             Hecho con Claude · CMF · SERNAC · BCN. Las respuestas citan la fuente oficial cuando
@@ -113,41 +113,43 @@ function ComoFunciona() {
   ]
 
   return (
-    <section id="como-funciona" className="relative mx-auto max-w-6xl px-6 pb-20 pt-4 sm:px-8 lg:px-10 xl:px-12">
-      <div className="mb-10">
-        <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
-          Cómo funciona
-        </p>
-        <h2 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">
-          Te escucho, ordeno tu caso y te muestro la ley.
-        </h2>
-        <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Finple se preocupa de entender bien tu caso, te ayuda a resolver dudas y te da pasos a
-          seguir. Siempre consultando fuentes oficiales y nunca dando un diagnóstico antes de
-          entender.
+    <section id="como-funciona" className="relative border-y border-ink/5 bg-white/55 py-16 md:py-20">
+      <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-10 xl:px-12">
+        <div className="mb-10">
+          <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
+            Cómo funciona
+          </p>
+          <h2 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">
+            Te escucho, ordeno tu caso y te muestro la ley.
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg text-ink-soft">
+            Finple se preocupa de entender bien tu caso, te ayuda a resolver dudas y te da pasos a
+            seguir. Siempre consultando fuentes oficiales y nunca dando un diagnóstico antes de
+            entender.
+          </p>
+        </div>
+
+        <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {steps.map((s) => (
+            <li
+              key={s.n}
+              className="rounded-2xl border border-ink/10 bg-white p-5 shadow-soft"
+            >
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-coral/15 font-serif text-sm font-semibold text-coral">
+                {s.n}
+              </span>
+              <h3 className="mt-3 font-serif text-xl font-medium text-ink">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.body}</p>
+            </li>
+          ))}
+        </ol>
+
+        <p className="mt-6 text-xs text-ink-soft/70">
+          Cada vez que Finple cita una ley, primero la busca en su biblioteca de normativa chilena
+          actualizada. Si el artículo no está, lo descarga directamente desde la página oficial de
+          la Biblioteca del Congreso antes de responder.
         </p>
       </div>
-
-      <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {steps.map((s) => (
-          <li
-            key={s.n}
-            className="rounded-2xl border border-ink/10 bg-white/85 p-5 shadow-soft"
-          >
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-coral/15 font-serif text-sm font-semibold text-coral">
-              {s.n}
-            </span>
-            <h3 className="mt-3 font-serif text-xl font-medium text-ink">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink-soft">{s.body}</p>
-          </li>
-        ))}
-      </ol>
-
-      <p className="mt-6 text-xs text-ink-soft/70">
-        Cada vez que Finple cita una ley, primero la busca en su biblioteca de normativa chilena
-        actualizada. Si el artículo no está, lo descarga directamente desde la página oficial de
-        la Biblioteca del Congreso antes de responder.
-      </p>
     </section>
   )
 }
@@ -190,7 +192,7 @@ function Ejemplos() {
   ]
 
   return (
-    <section id="ejemplos" className="relative mx-auto max-w-6xl px-6 pb-20 sm:px-8 lg:px-10 xl:px-12">
+    <section id="ejemplos" className="relative mx-auto max-w-5xl px-6 py-20 sm:px-8 lg:px-10 xl:px-12">
       <div className="mb-10">
         <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
           Ejemplos de uso
@@ -254,80 +256,82 @@ function Fuentes() {
   ]
 
   return (
-    <section id="fuentes" className="relative mx-auto max-w-6xl px-6 pb-24 sm:px-8 lg:px-10 xl:px-12">
-      <div className="mb-10">
-        <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
-          Fuentes
-        </p>
-        <h2 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">
-          Todo lo que cito está publicado en Chile.
-        </h2>
-        <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Indexamos directamente los textos oficiales desde la Biblioteca del Congreso (BCN).
-          Cuando derivamos a una autoridad, abrimos el canal real de reclamos.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-y-0">
-        <div>
-          <h3 className="mb-4 font-serif text-xl font-medium text-ink">Leyes indexadas</h3>
-          <ul className="space-y-3">
-            {leyes.map((l) => (
-              <li
-                key={l.idNorma}
-                className="rounded-xl border border-ink/10 bg-white/85 p-4 shadow-soft"
-              >
-                <a
-                  href={`https://www.bcn.cl/leychile/navegar?idNorma=${l.idNorma}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-ink hover:text-coral"
-                >
-                  {l.alias}
-                </a>
-                <p className="mt-1 text-sm text-ink-soft">{l.area}</p>
-              </li>
-            ))}
-          </ul>
+    <section id="fuentes" className="relative border-y border-ink/5 bg-cream-deep/55 py-16 md:py-20">
+      <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-10 xl:px-12">
+        <div className="mb-10">
+          <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
+            Fuentes
+          </p>
+          <h2 className="font-serif text-4xl font-medium tracking-tight md:text-5xl">
+            Todo lo que cito está publicado en Chile.
+          </h2>
+          <p className="mt-4 max-w-2xl text-lg text-ink-soft">
+            Indexamos directamente los textos oficiales desde la Biblioteca del Congreso (BCN).
+            Cuando derivamos a una autoridad, abrimos el canal real de reclamos.
+          </p>
         </div>
 
-        <div>
-          <h3 className="mb-4 font-serif text-xl font-medium text-ink">Autoridades a las que derivamos</h3>
-          <ul className="space-y-3">
-            {autoridades.map((a) => (
-              <li
-                key={a.name}
-                className="rounded-xl border border-ink/10 bg-white/85 p-4 shadow-soft"
-              >
+        <div className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 md:gap-y-0">
+          <div>
+            <h3 className="mb-4 font-serif text-xl font-medium text-ink">Leyes indexadas</h3>
+            <ul className="space-y-3">
+              {leyes.map((l) => (
+                <li
+                  key={l.idNorma}
+                  className="rounded-xl border border-ink/10 bg-white p-4 shadow-soft"
+                >
+                  <a
+                    href={`https://www.bcn.cl/leychile/navegar?idNorma=${l.idNorma}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-ink hover:text-coral"
+                  >
+                    {l.alias}
+                  </a>
+                  <p className="mt-1 text-sm text-ink-soft">{l.area}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-4 font-serif text-xl font-medium text-ink">Autoridades a las que derivamos</h3>
+            <ul className="space-y-3">
+              {autoridades.map((a) => (
+                <li
+                  key={a.name}
+                  className="rounded-xl border border-ink/10 bg-white p-4 shadow-soft"
+                >
+                  <a
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-ink hover:text-coral"
+                  >
+                    {a.name}
+                  </a>
+                  <p className="mt-1 text-sm text-ink-soft">{a.desc}</p>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="mt-8 mb-4 font-serif text-xl font-medium text-ink">Acceso al texto legal</h3>
+            <ul className="space-y-2 text-sm text-ink-soft">
+              <li>
                 <a
-                  href={a.url}
+                  href="https://www.bcn.cl/leychile"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-ink hover:text-coral"
+                  className="text-coral underline decoration-coral/40 underline-offset-2 hover:text-sienna"
                 >
-                  {a.name}
-                </a>
-                <p className="mt-1 text-sm text-ink-soft">{a.desc}</p>
+                  BCN · LeyChile
+                </a>{' '}
+                — texto oficial vía endpoint XML <code className="rounded bg-white/70 px-1.5 py-0.5 font-mono text-[0.85em]">servicios-leychile.bcn.cl/Consulta/obtxml</code>.
               </li>
-            ))}
-          </ul>
-
-          <h3 className="mt-8 mb-4 font-serif text-xl font-medium text-ink">Acceso al texto legal</h3>
-          <ul className="space-y-2 text-sm text-ink-soft">
-            <li>
-              <a
-                href="https://www.bcn.cl/leychile"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-coral underline decoration-coral/40 underline-offset-2 hover:text-sienna"
-              >
-                BCN · LeyChile
-              </a>{' '}
-              — texto oficial vía endpoint XML <code className="rounded bg-cream-deep/70 px-1.5 py-0.5 font-mono text-[0.85em]">servicios-leychile.bcn.cl/Consulta/obtxml</code>.
-            </li>
-            <li>Indexado en Postgres + pgvector (Supabase) con embeddings de OpenAI.</li>
-            <li>El agente nunca cita un artículo sin recuperarlo del corpus o de BCN.</li>
-          </ul>
+              <li>Indexado en Postgres + pgvector (Supabase) con embeddings de OpenAI.</li>
+              <li>El agente nunca cita un artículo sin recuperarlo del corpus o de BCN.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
