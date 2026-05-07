@@ -220,7 +220,7 @@ export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
         onKeyDown={onKeyDown}
         rows={4}
         disabled={disabled}
-        placeholder="Cuéntame qué te tiene dudando. Ej: 'me cobraron un seguro raro' o 'mi crédito hipotecario subió y no entiendo por qué'…"
+        placeholder="Cuéntame en tus palabras lo que te tiene dudando con tu plata, aunque no sepas explicarlo bien. Por ejemplo: 'me cobraron un seguro raro que no pedí', 'mi crédito hipotecario subió y no entiendo por qué', 'me suplantaron y sacaron un crédito a mi nombre'…"
         className="block min-h-[7rem] w-full resize-none border-0 bg-transparent px-3 pt-2 text-base leading-relaxed text-ink placeholder:text-ink-soft/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 md:text-[1.05rem]"
         aria-label="Pregunta a Finple"
       />
