@@ -44,7 +44,7 @@ export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
     const ta = textareaRef.current
     if (!ta) return
     ta.style.height = 'auto'
-    ta.style.height = `${Math.min(ta.scrollHeight, 220)}px`
+    ta.style.height = `${Math.max(112, Math.min(ta.scrollHeight, 340))}px`
   }
 
   function classify(file: File): PendingFile['kind'] {
@@ -218,10 +218,10 @@ export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
           handleAdjust()
         }}
         onKeyDown={onKeyDown}
-        rows={1}
+        rows={4}
         disabled={disabled}
         placeholder="Cuéntame qué te tiene dudando. Ej: 'me cobraron un seguro raro' o 'mi crédito hipotecario subió y no entiendo por qué'…"
-        className="block w-full resize-none border-0 bg-transparent px-3 pt-2 text-base leading-relaxed text-ink placeholder:text-ink-soft/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 md:text-[1.05rem]"
+        className="block min-h-[7rem] w-full resize-none border-0 bg-transparent px-3 pt-2 text-base leading-relaxed text-ink placeholder:text-ink-soft/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 md:text-[1.05rem]"
         aria-label="Pregunta a Finple"
       />
 
