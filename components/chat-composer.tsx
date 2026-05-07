@@ -26,12 +26,20 @@ type PendingFile = {
   kind: 'pdf' | 'image' | 'other'
 }
 
+const DEFAULT_PLACEHOLDER =
+  "Cuéntame en tus palabras lo que te tiene dudando con tu plata, aunque no sepas explicarlo bien. Por ejemplo: 'me cobraron un seguro raro que no pedí', 'mi crédito hipotecario subió y no entiendo por qué', 'me suplantaron y sacaron un crédito a mi nombre'…"
+
 export type ChatComposerProps = {
   onSend: (message: string, files: File[]) => void | Promise<void>
   disabled?: boolean
+  placeholder?: string
 }
 
-export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
+export function ChatComposer({
+  onSend,
+  disabled = false,
+  placeholder = DEFAULT_PLACEHOLDER,
+}: ChatComposerProps) {
   const [value, setValue] = useState('')
   const [pending, setPending] = useState<PendingFile[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -220,7 +228,7 @@ export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
         onKeyDown={onKeyDown}
         rows={4}
         disabled={disabled}
-        placeholder="Cuéntame en tus palabras lo que te tiene dudando con tu plata, aunque no sepas explicarlo bien. Por ejemplo: 'me cobraron un seguro raro que no pedí', 'mi crédito hipotecario subió y no entiendo por qué', 'me suplantaron y sacaron un crédito a mi nombre'…"
+        placeholder={placeholder}
         className="block min-h-[7rem] w-full resize-none border-0 bg-transparent px-3 pt-2 text-base leading-relaxed text-ink placeholder:text-ink-soft/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 md:text-[1.05rem]"
         aria-label="Pregunta a Finple"
       />

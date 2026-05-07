@@ -228,7 +228,11 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
         </div>
       )}
 
-      <ChatComposer onSend={send} disabled={streaming} />
+      <ChatComposer
+        onSend={send}
+        disabled={streaming}
+        placeholder={messages.length > 0 ? '' : undefined}
+      />
 
       {error && (
         <p role="alert" className="px-2 text-sm text-sienna">
