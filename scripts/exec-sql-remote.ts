@@ -1,5 +1,9 @@
+import 'dotenv/config'
+import { config as dotenvConfig } from 'dotenv'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+
+dotenvConfig({ path: '.env.local', override: false })
 
 const PROJECT_REF = process.env.SUPABASE_PROJECT_REF ?? 'tysmxjrvabkaruabappa'
 const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN

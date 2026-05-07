@@ -1,4 +1,6 @@
 import 'dotenv/config'
+import { config as dotenvConfig } from 'dotenv'
+dotenvConfig({ path: '.env.local', override: false })
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fetchDictamenText, chunkDictamen } from '../lib/sernac-html'
