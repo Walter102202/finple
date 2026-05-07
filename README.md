@@ -2,7 +2,11 @@
 
 Asistente conversacional que ayuda a personas comunes en Chile —sin formación financiera ni jurídica— a entender problemas con bancos, créditos, AFP, ISAPRE, fintech, fraudes o cobros que no reconocen, y a saber a qué autoridad acudir (CMF, SERNAC, SUSESO, Superintendencia de Pensiones, ANCI, SII o tribunales).
 
-> Construido para el **Claude Impact Lab Chile 2026** — desafío *Inclusión Financiera para Chile*, Línea 01: traducir la normativa CMF/SII a lenguaje ciudadano, con **cero alucinación regulatoria** como gate de calidad.
+**Segmento primario:** adultos 25–50 que entran a invertir digital (acciones, cripto, créditos hipotecarios) o tienen dudas sobre cobros y contratos. La brecha de literacy regulatoria alcanza a unos **4 millones de personas** en ese rango — Censo 2024 ([INE](https://censo2024.ine.gob.cl/)) × CAF *Capacidades Financieras en América Latina: Chile 2023* (55% sin nivel mínimo aceptable de conocimiento financiero).
+
+> Construido por el equipo **Knowledge Builders** para el **Claude Impact Lab Chile 2026** — desafío *Inclusión Financiera para Chile*, Línea 01: traducir la normativa CMF/SII a lenguaje ciudadano, con **cero alucinación regulatoria** como gate de calidad.
+>
+> **Producción:** [finple-alpha.vercel.app](https://finple-alpha.vercel.app)
 
 ---
 
@@ -236,6 +240,5 @@ npm run dev
 ## Roadmap post-Lab
 
 - Persistencia de conversaciones (tabla `conversations` en Supabase con RLS por usuario).
-- Ingestion de NCGs CMF (PDFs) y dictámenes SERNAC al corpus.
-- MCP server público (`finple-corpus`) reutilizable por otros agentes cívicos.
-- Escalamiento del paso de "redacción de reclamo formal" a envío directo vía portales oficiales.
+- Distribución del Agente por canales institucionales (CMF, Fintech, Bancos, etc.)
+- Distribución del agente vía WhatsApp para llegar al canal donde la gente ya pide ayuda — atención al usuario en el chat que ya usa, sin instalar nada.
