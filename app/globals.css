@@ -29,27 +29,40 @@ body {
 }
 
 @keyframes finple-f-jump {
-  0%   { transform: translateX(0); }
-  16%  { transform: translateX(-30px); }
-  33%  { transform: translateX(0); }
-  50%  { transform: translateX(-30px); }
-  66%  { transform: translateX(0); }
-  83%  { transform: translateX(-30px); }
-  100% { transform: translateX(0); }
+  /* 4 saltos hacia la izquierda — recorre 140px (hasta el lado izq. de la cara) */
+  0%     { transform: translate(0, 0); }
+  6.25%  { transform: translate(-17px, -28px); }   /* peak salto 1 */
+  12.5%  { transform: translate(-35px, 0); }       /* touchdown 1 */
+  18.75% { transform: translate(-52px, -28px); }   /* peak salto 2 */
+  25%    { transform: translate(-70px, 0); }       /* touchdown 2 */
+  31.25% { transform: translate(-87px, -28px); }   /* peak salto 3 */
+  37.5%  { transform: translate(-105px, 0); }      /* touchdown 3 */
+  43.75% { transform: translate(-122px, -28px); }  /* peak salto 4 */
+  50%    { transform: translate(-140px, 0); }      /* punto más lejano */
+
+  /* 4 saltos de vuelta hasta el origen */
+  56.25% { transform: translate(-122px, -28px); }
+  62.5%  { transform: translate(-105px, 0); }
+  68.75% { transform: translate(-87px, -28px); }
+  75%    { transform: translate(-70px, 0); }
+  81.25% { transform: translate(-52px, -28px); }
+  87.5%  { transform: translate(-35px, 0); }
+  93.75% { transform: translate(-17px, -28px); }
+  100%   { transform: translate(0, 0); }
 }
 
 .animate-finple-f-jump {
   transform-box: fill-box;
-  animation: finple-f-jump 1050ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  animation: finple-f-jump 2200ms ease-in-out;
 }
 
 @keyframes finple-q-pop {
   0%   { transform: translate(-50%, -8px) scale(0.4); opacity: 0; }
-  20%  { transform: translate(-50%, -14px) scale(1.05); opacity: 1; }
-  60%  { transform: translate(-50%, -10px) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -16px) scale(0.95); opacity: 0; }
+  10%  { transform: translate(-50%, -14px) scale(1.05); opacity: 1; }
+  82%  { transform: translate(-50%, -10px) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -18px) scale(0.95); opacity: 0; }
 }
 
 .animate-finple-q-pop {
-  animation: finple-q-pop 1100ms ease-out forwards;
+  animation: finple-q-pop 2200ms ease-out forwards;
 }
