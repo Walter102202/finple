@@ -46,7 +46,7 @@ function summarizeToolInput(name: string, input: Record<string, unknown>): strin
   return `Usando ${name}…`
 }
 
-export function Chat() {
+export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
   const [messages, setMessages] = useState<DisplayMessage[]>([])
   const [streaming, setStreaming] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -70,6 +70,8 @@ export function Chat() {
   }
 
   async function send(message: string, files: File[]) {
+    onAsk?.()
+
     const attachments: Attachment[] = files.map((f) => ({
       name: f.name,
       kind: classify(f),
@@ -192,7 +194,7 @@ export function Chat() {
       )}
 
       <p className="px-1 text-xs text-ink-soft/70">
-        Acepta PDF, PDF escaneado e imágenes (JPG, PNG, HEIC). Hasta 25 MB por archivo.
+        Acepta PDF, PDF escaneado e imágenes (JPG, PNG, WebP). Hasta 25 MB por archivo.
       </p>
     </div>
   )

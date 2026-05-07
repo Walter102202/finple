@@ -1,7 +1,12 @@
+'use client'
+
+import { useState } from 'react'
 import { Chat } from '@/components/chat'
 import { FinpleDog } from '@/components/finple-dog'
 
 export default function Page() {
+  const [askPulse, setAskPulse] = useState(0)
+
   return (
     <main className="relative min-h-screen">
       <BackgroundGlow />
@@ -52,12 +57,12 @@ export default function Page() {
           </p>
 
           <div className="mt-8">
-            <Chat />
+            <Chat onAsk={() => setAskPulse((n) => n + 1)} />
           </div>
         </div>
 
         <div className="order-1 flex justify-center md:order-2 md:sticky md:top-12 md:justify-end">
-          <FinpleDog />
+          <FinpleDog askPulse={askPulse} />
         </div>
       </section>
 
@@ -82,18 +87,18 @@ function ComoFunciona() {
   const steps = [
     {
       n: '1',
-      title: 'Acoger',
+      title: 'Analizar tu caso',
       body: 'Lee tu relato y te lo devuelve en simple. Cierra con un "¿es así?" antes de seguir.',
     },
     {
       n: '2',
       title: 'Preguntar',
-      body: 'Pide solo lo que falta: institución, producto, fecha, monto, si reclamaste antes.',
+      body: 'Solo si es necesario, te consulta lo que falta: institución, producto, fecha, monto, si reclamaste antes.',
     },
     {
       n: '3',
       title: 'Verificar la ley',
-      body: 'Activa la skill del área (créditos, cobros, fraude…) y consulta el corpus de leyes chilenas indexado en Supabase.',
+      body: 'Identifica el área de tu caso (créditos, cobros, fraude…) y revisa la ley chilena que aplica antes de responder.',
     },
     {
       n: '4',
@@ -138,8 +143,9 @@ function ComoFunciona() {
       </ol>
 
       <p className="mt-6 text-xs text-ink-soft/70">
-        Cada vez que cita una ley, Finple llama a <code className="rounded bg-cream-deep/70 px-1.5 py-0.5 font-mono">search_corpus</code> sobre el corpus oficial.
-        Si no encuentra el artículo, descarga el XML fresco desde BCN con <code className="rounded bg-cream-deep/70 px-1.5 py-0.5 font-mono">read_bcn_law</code> antes de responder.
+        Cada vez que Finple cita una ley, primero la busca en su biblioteca de normativa chilena
+        actualizada. Si el artículo no está, lo descarga directamente desde la página oficial de
+        la Biblioteca del Congreso antes de responder.
       </p>
     </section>
   )
@@ -152,10 +158,10 @@ function Ejemplos() {
       question:
         '"Me cobraron un seguro de desgravamen que nunca pedí en mi crédito de consumo del BCI."',
       steps: [
-        'Activa la skill cobros_indebidos.',
-        'Cita Ley 21.398 (ventas atadas) y Ley 19.496 (derechos del consumidor).',
-        'Confirma cómo y cuándo apareció el cobro antes de diagnosticar.',
-        'Deriva al SERNAC y a la CMF con plazos y links oficiales.',
+        'Te pide confirmar cómo y cuándo apareció el cobro antes de diagnosticar.',
+        'Te explica qué dice la Ley 21.398 sobre ventas atadas y la Ley 19.496 sobre derechos del consumidor.',
+        'Te indica cómo reclamar primero al banco y los plazos que tiene para responderte.',
+        'Si no resuelven, te deriva a SERNAC y a la CMF con los enlaces oficiales.',
       ],
     },
     {
@@ -163,21 +169,21 @@ function Ejemplos() {
       question:
         '"Me suplantaron y sacaron un crédito a mi nombre en una casa comercial. ¿Qué hago?"',
       steps: [
-        'Activa la skill fraude_suplantacion.',
-        'Cita Ley 21.234 (limitación de responsabilidad) y Ley 21.459 (delitos informáticos).',
-        'Pide datos mínimos: institución, fecha, si ya hiciste denuncia.',
-        'Ruta clara: denuncia PDI/Fiscalía + reclamo CMF + congelar productos en el banco.',
+        'Te pregunta lo mínimo: institución, fecha y si ya hiciste denuncia.',
+        'Te explica la Ley 21.234 (qué pagas y qué no cuando hay fraude) y la Ley 21.459 (delitos informáticos).',
+        'Te muestra la ruta concreta: denuncia en PDI o Fiscalía y reclamo formal a la CMF.',
+        'Te dice qué pedirle al banco hoy: congelar productos y desconocer el crédito.',
       ],
     },
     {
       tag: 'Datos personales',
       question:
-        '"Mi banco filtró datos míos en una brecha. ¿Qué derechos tengo?"',
+        '"Mi banco filtró datos míos. ¿Qué derechos tengo?"',
       steps: [
-        'Activa la skill datos_personales.',
-        'Cita Ley 19.628 (vigente hoy) y Ley 21.719 (vigencia 1 dic 2026).',
-        'Aclara qué cambia con la nueva ley sin inventar plazos.',
-        'Indica autoridad: ANCI si es ciberincidente reportable; SERNAC/CMF según relación contractual.',
+        'Te explica qué dice hoy la Ley 19.628 sobre tus datos personales.',
+        'Te aclara qué cambia con la nueva Ley 21.719 desde el 1 de diciembre de 2026.',
+        'Te indica si el caso debe reportarse a la ANCI por ser un incidente de ciberseguridad.',
+        'Te orienta a SERNAC o a la CMF según tu relación con la institución.',
       ],
     },
   ]

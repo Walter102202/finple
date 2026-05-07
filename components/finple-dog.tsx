@@ -2,10 +2,25 @@
 
 import { useEffect, useState, type MouseEvent } from 'react'
 
-export function FinpleDog({ className = '' }: { className?: string }) {
+export function FinpleDog({
+  className = '',
+  askPulse = 0,
+}: {
+  className?: string
+  askPulse?: number
+}) {
   const [pupil, setPupil] = useState({ x: 0, y: 0 })
   const [blinking, setBlinking] = useState(false)
   const [excited, setExcited] = useState(false)
+  const [thinking, setThinking] = useState(false)
+
+  // dispara la mirada pensativa + signo "?" cuando el usuario pregunta
+  useEffect(() => {
+    if (askPulse === 0) return
+    setThinking(true)
+    const id = setTimeout(() => setThinking(false), 1100)
+    return () => clearTimeout(id)
+  }, [askPulse])
 
   // idle blink — every 3.5–6s, eyes close for 140ms
   useEffect(() => {
@@ -180,7 +195,10 @@ export function FinpleDog({ className = '' }: { className?: string }) {
 
         {/* Eyes — interactive */}
         {showOpen && (
-          <g transform={`translate(${pupil.x.toFixed(2)} ${pupil.y.toFixed(2)})`}>
+          <g
+            transform={`translate(${(thinking ? 0 : pupil.x).toFixed(2)} ${(thinking ? -6 : pupil.y).toFixed(2)})`}
+            style={{ transition: thinking ? 'transform 200ms ease-out' : undefined }}
+          >
             <circle cx="130" cy="160" r="8.5" fill="#191919" />
             <circle cx="190" cy="160" r="8.5" fill="#191919" />
             <circle cx="132.5" cy="156.5" r="2.6" fill="#FFFFFF" />
@@ -252,7 +270,10 @@ export function FinpleDog({ className = '' }: { className?: string }) {
         <ellipse cx="156" cy="232" rx="2.5" ry="6" fill="#F4BEC2" opacity="0.6" />
 
         {/* Claude-Code-style pixel badge replacing the F disc */}
-        <g>
+        <g
+          key={`fjump-${askPulse}`}
+          className={askPulse > 0 ? 'animate-finple-f-jump' : ''}
+        >
           {/* outer white outline */}
           <rect x="218" y="232" width="48" height="36" fill="#FFFFFF" />
           {/* legs (white outline) */}
@@ -287,6 +308,18 @@ export function FinpleDog({ className = '' }: { className?: string }) {
       >
         ¡guau!
       </div>
+
+      {/* "?" flotante — aparece al preguntar */}
+      {askPulse > 0 && (
+        <div
+          key={`qpop-${askPulse}`}
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-2 select-none font-serif text-6xl font-bold text-coral animate-finple-q-pop md:top-4 md:text-7xl"
+          style={{ textShadow: '0 2px 8px rgba(217,119,87,0.25)' }}
+        >
+          ?
+        </div>
+      )}
     </div>
   )
 }
