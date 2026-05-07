@@ -2,7 +2,7 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react'
 
-const ACCEPTED = '.pdf,application/pdf,image/png,image/jpeg,image/jpg,image/heic,image/webp'
+const ACCEPTED = '.pdf,application/pdf,image/png,image/jpeg,image/jpg,image/webp'
 const MAX_BYTES = 25 * 1024 * 1024
 
 type PendingFile = {

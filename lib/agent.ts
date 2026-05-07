@@ -1,9 +1,11 @@
-import { query, type SDKMessage } from '@anthropic-ai/claude-agent-sdk'
+import { query, type SDKMessage, type SDKUserMessage } from '@anthropic-ai/claude-agent-sdk'
+import type { ContentBlockParam, MessageParam } from '@anthropic-ai/sdk/resources/messages'
 import { finpleMcpServer, FINPLE_TOOL_NAMES } from './tools-mcp'
 import { SYSTEM_PROMPT } from './system-prompt'
 
 export type FinpleEvent =
   | { type: 'text'; text: string }
+  | { type: 'citation'; citation: unknown }
   | { type: 'tool_call'; name: string; id: string }
   | { type: 'tool_executing'; name: string; input: Record<string, unknown> }
   | { type: 'tool_done'; name: string; ok: boolean }
@@ -38,10 +40,33 @@ function shortName(raw: string): string {
 export async function* runFinpleAgent(
   message: string,
   history: ChatTurn[],
+  attachmentBlocks: ContentBlockParam[] = [],
 ): AsyncGenerator<FinpleEvent> {
-  const prompt = composePrompt(message, history)
+  const promptText = composePrompt(message, history)
+  const prompt: string | AsyncIterable<SDKUserMessage> =
+    attachmentBlocks.length === 0
+      ? promptText
+      : (async function* () {
+          const content: ContentBlockParam[] = [
+            ...attachmentBlocks,
+            { type: 'text', text: promptText },
+          ]
+          const userMessage: MessageParam = { role: 'user', content }
+          yield {
+            type: 'user',
+            message: userMessage,
+            parent_tool_use_id: null,
+          } satisfies SDKUserMessage
+        })()
   const inflightTools = new Map<string, string>()
-  console.log('[agent] start, cwd=' + process.cwd() + ', prompt.len=' + prompt.length)
+  console.log(
+    '[agent] start, cwd=' +
+      process.cwd() +
+      ', prompt.len=' +
+      promptText.length +
+      ', attachments=' +
+      attachmentBlocks.length,
+  )
 
   try {
     let messageCount = 0
@@ -77,7 +102,12 @@ export async function* runFinpleAgent(
               type: string
               index?: number
               content_block?: { type: string; id?: string; name?: string; text?: string }
-              delta?: { type: string; text?: string; partial_json?: string }
+              delta?: {
+                type: string
+                text?: string
+                partial_json?: string
+                citation?: unknown
+              }
             }
           | undefined
         if (!ev) continue
@@ -93,6 +123,8 @@ export async function* runFinpleAgent(
         } else if (ev.type === 'content_block_delta' && ev.delta) {
           if (ev.delta.type === 'text_delta' && typeof ev.delta.text === 'string') {
             yield { type: 'text', text: ev.delta.text }
+          } else if (ev.delta.type === 'citations_delta' && ev.delta.citation) {
+            yield { type: 'citation', citation: ev.delta.citation }
           }
         }
         continue

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { runFinpleAgent, type ChatTurn } from '@/lib/agent'
+import { attachmentsToContentBlocks, AttachmentError } from '@/lib/attachments'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
@@ -56,11 +57,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Mensaje vacío.' }, { status: 400 })
   }
 
-  const filePreface =
-    files.length > 0
-      ? `[El usuario adjuntó ${files.length} archivo(s): ${files.map((f) => f.name).join(', ')}. Si necesitas el contenido para diagnosticar, pídele que pegue el texto relevante o lo describa en sus palabras — la lectura nativa de PDF e imagen llegará en una versión posterior.]\n\n`
-      : ''
-  const userInput = (filePreface + message).trim() || '(usuario adjuntó archivos sin texto)'
+  let attachmentBlocks: Awaited<ReturnType<typeof attachmentsToContentBlocks>>
+  try {
+    attachmentBlocks = await attachmentsToContentBlocks(files)
+  } catch (e) {
+    if (e instanceof AttachmentError) {
+      return NextResponse.json({ error: e.message }, { status: e.status })
+    }
+    throw e
+  }
+
+  const userInput = message.trim() || '(usuario adjuntó archivos sin texto adicional)'
+  const summary =
+    attachmentBlocks.summaries.length === 0
+      ? 'none'
+      : attachmentBlocks.summaries.map((s) => `${s.kind}:${s.bytes}b`).join(',')
+  console.log(`[chat] turn — text.len=${userInput.length} attachments=${summary}`)
 
   const encoder = new TextEncoder()
   const stream = new ReadableStream<Uint8Array>({
@@ -69,7 +81,7 @@ export async function POST(req: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
       }
       try {
-        for await (const evt of runFinpleAgent(userInput, history)) {
+        for await (const evt of runFinpleAgent(userInput, history, attachmentBlocks.blocks)) {
           send(evt)
         }
       } catch (e) {
