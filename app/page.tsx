@@ -11,7 +11,7 @@ export default function Page() {
     <main className="relative min-h-screen">
       <BackgroundGlow />
 
-      <header className="relative mx-auto flex max-w-5xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 xl:px-12">
+      <header className="relative mx-auto flex max-w-6xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8 lg:px-10 lg:pt-10 xl:px-12">
         <div className="flex items-center gap-2 text-sm font-medium tracking-wide text-ink-soft">
           <span className="inline-block h-2 w-2 rounded-full bg-coral" />
           <span>Claude Impact Lab · Línea 01 — Inclusión Financiera</span>
@@ -29,7 +29,7 @@ export default function Page() {
         </nav>
       </header>
 
-      <section className="relative mx-auto grid max-w-5xl grid-cols-1 items-start gap-10 px-6 pb-20 pt-10 sm:px-8 lg:px-10 xl:px-12 md:grid-cols-[1.25fr_1fr] md:gap-14 md:pb-24 md:pt-16">
+      <section className="relative mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-6 pb-20 pt-10 sm:px-8 lg:px-10 xl:px-12 md:grid-cols-[1.25fr_1fr] md:gap-14 md:pb-24 md:pt-16">
         <div className="order-2 md:order-1">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-clay">
             Para dudas de luca$
@@ -70,7 +70,7 @@ export default function Page() {
       <Ejemplos />
       <Fuentes />
 
-      <footer className="relative mx-auto max-w-5xl px-6 pb-10 pt-10 text-xs text-ink-soft/70 sm:px-8 lg:px-10 xl:px-12">
+      <footer className="relative mx-auto max-w-6xl px-6 pb-10 pt-10 text-xs text-ink-soft/70 sm:px-8 lg:px-10 xl:px-12">
         <div className="flex flex-col items-start justify-between gap-2 border-t border-ink/10 pt-6 md:flex-row md:items-center">
           <span>
             Hecho con Claude · CMF · SERNAC · BCN. Las respuestas citan la fuente oficial cuando
@@ -114,7 +114,7 @@ function ComoFunciona() {
 
   return (
     <section id="como-funciona" className="relative border-y border-ink/5 bg-white/55 py-16 md:py-20">
-      <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-10 xl:px-12">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-10 xl:px-12">
         <div className="mb-10">
           <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
             Cómo funciona
@@ -192,7 +192,7 @@ function Ejemplos() {
   ]
 
   return (
-    <section id="ejemplos" className="relative mx-auto max-w-5xl px-6 py-20 sm:px-8 lg:px-10 xl:px-12">
+    <section id="ejemplos" className="relative mx-auto max-w-6xl px-6 py-20 sm:px-8 lg:px-10 xl:px-12">
       <div className="mb-10">
         <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
           Ejemplos de uso
@@ -257,7 +257,7 @@ function Fuentes() {
 
   return (
     <section id="fuentes" className="relative border-y border-ink/5 bg-cream-deep/55 py-16 md:py-20">
-      <div className="mx-auto max-w-5xl px-6 sm:px-8 lg:px-10 xl:px-12">
+      <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-10 xl:px-12">
         <div className="mb-10">
           <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-clay">
             Fuentes
