@@ -48,3 +48,12 @@ Si el riesgo está activo, recomienda primero medidas de contención (bloqueo, c
 
 - "Es un delito tipificado en el Art. X de la Ley 21.459" sin haber verificado el artículo exacto.
 - "Te van a devolver la plata por la Ley X" — promesa de resultado.
+
+## 7. Corpus indexado adicional
+
+Recuperables vía `search_corpus({ area: "fraude_suplantacion" })` y por id:
+
+- **NCG 454 CMF — Gestión de riesgo operacional y ciberseguridad (bancos y entidades supervisadas)** — `read_ncg("454")`.
+- **NCG 487 CMF — Información sobre fraudes en transacciones electrónicas (Ley 21.234)** — `read_ncg("487")`. Útil para entender qué reporta la institución cuando hay fraude.
+- **NCG 510 CMF — Gestión de riesgo operacional para cooperativas de ahorro y crédito** — `read_ncg("510")`.
+- **Dictamen SERNAC 24-feb-2026 — Procedimiento ante fraude en medios de pago y transacciones electrónicas** — `read_dictamen("art-88180")`.

@@ -31,6 +31,12 @@ const SHORT_TOOL_NAMES: Record<string, string> = {
   'mcp__finple-corpus__search_corpus': 'search_corpus',
   mcp__finple_corpus__read_bcn_law: 'read_bcn_law',
   'mcp__finple-corpus__read_bcn_law': 'read_bcn_law',
+  mcp__finple_corpus__read_ncg: 'read_ncg',
+  'mcp__finple-corpus__read_ncg': 'read_ncg',
+  mcp__finple_corpus__read_dictamen: 'read_dictamen',
+  'mcp__finple-corpus__read_dictamen': 'read_dictamen',
+  mcp__finple_corpus__fetch_official_source: 'fetch_official_source',
+  'mcp__finple-corpus__fetch_official_source': 'fetch_official_source',
 }
 
 function shortName(raw: string): string {
@@ -59,6 +65,7 @@ export async function* runFinpleAgent(
           } satisfies SDKUserMessage
         })()
   const inflightTools = new Map<string, string>()
+  const inflightInputs = new Map<number, { id: string; name: string; buffer: string }>()
   console.log(
     '[agent] start, cwd=' +
       process.cwd() +
@@ -118,13 +125,36 @@ export async function* runFinpleAgent(
             const visible = shortName(block.name)
             inflightTools.set(block.id, visible)
             yield { type: 'tool_call', name: visible, id: block.id }
-            yield { type: 'tool_executing', name: visible, input: {} }
+            if (typeof ev.index === 'number') {
+              inflightInputs.set(ev.index, { id: block.id, name: visible, buffer: '' })
+            }
           }
         } else if (ev.type === 'content_block_delta' && ev.delta) {
           if (ev.delta.type === 'text_delta' && typeof ev.delta.text === 'string') {
             yield { type: 'text', text: ev.delta.text }
           } else if (ev.delta.type === 'citations_delta' && ev.delta.citation) {
             yield { type: 'citation', citation: ev.delta.citation }
+          } else if (
+            ev.delta.type === 'input_json_delta' &&
+            typeof ev.delta.partial_json === 'string' &&
+            typeof ev.index === 'number'
+          ) {
+            const slot = inflightInputs.get(ev.index)
+            if (slot) slot.buffer += ev.delta.partial_json
+          }
+        } else if (ev.type === 'content_block_stop' && typeof ev.index === 'number') {
+          const slot = inflightInputs.get(ev.index)
+          if (slot) {
+            inflightInputs.delete(ev.index)
+            let parsed: Record<string, unknown> = {}
+            if (slot.buffer.length > 0) {
+              try {
+                parsed = JSON.parse(slot.buffer) as Record<string, unknown>
+              } catch {
+                parsed = {}
+              }
+            }
+            yield { type: 'tool_executing', name: slot.name, input: parsed }
           }
         }
         continue

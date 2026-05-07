@@ -1,6 +1,3 @@
-import { betaZodTool } from '@anthropic-ai/sdk/helpers/beta/zod'
-import { z } from 'zod'
-
 const ALLOWED_DOMAINS = [
   'bcn.cl',
   'cmfchile.cl',
@@ -92,21 +89,3 @@ export async function runFetchOfficialSource(input: { url: string; reason: strin
   }
 }
 
-export const fetchOfficialSourceTool = betaZodTool({
-  name: 'fetch_official_source',
-  description:
-    'Descarga el contenido de una URL oficial chilena para verificar normativa, plazos, registros públicos o información gubernamental antes de citarla al usuario. ' +
-    'Dominios permitidos: bcn.cl, cmfchile.cl, sernac.cl, sii.cl, anci.gob.cl, suseso.cl, spensiones.cl, csirt.gob.cl, bcentral.cl, gob.cl. ' +
-    'Devuelve hasta 8000 caracteres de texto plano. Para PDFs por URL devuelve un aviso (pídele al usuario que los adjunte). ' +
-    'Úsalo cuando: (a) no estés seguro del articulado de una ley/NCG/circular antes de citarla, (b) necesites confirmar plazos o requisitos exactos, (c) necesites revisar el RPSF para verificar si una fintech está registrada, (d) necesites revisar alertas CMF sobre estafas o entidades no autorizadas. ' +
-    'NO uses esta herramienta para sitios no oficiales (bancos privados, foros, redes sociales).',
-  inputSchema: z.object({
-    url: z.string().url().describe('URL completa del documento o página oficial chilena (debe estar en la lista de dominios permitidos)'),
-    reason: z.string().describe('Por qué necesitas verificar esta fuente — qué afirmación o dato específico vas a confirmar'),
-  }),
-  run: runFetchOfficialSource,
-})
-
-export const TOOL_HANDLERS: Record<string, (input: any) => Promise<string>> = {
-  fetch_official_source: runFetchOfficialSource,
-}

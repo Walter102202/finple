@@ -46,6 +46,7 @@ Algunos casos involucran a más de una autoridad. Ejemplos:
 1. Identifica claramente la naturaleza del problema antes de derivar (un mismo hecho puede ser regulatorio, de consumidor, penal, etc.).
 2. \`search_corpus({ query: "<rol de la autoridad mencionada>", area: "regulacion_autoridades" })\` para anclar competencia exacta si afirmas algo regulatorio específico.
 3. Cuando el usuario está confundido entre dos autoridades, explícale en lenguaje ciudadano qué hace cada una y por qué su caso encaja.
+4. Si afirmas un plazo, canal o requisito puntual de una autoridad y no estás 100% seguro, verifícalo con \`fetch_official_source\` a la URL oficial correspondiente (cmfchile.cl, sernac.cl, suseso.cl, etc.) antes de cerrar la respuesta. No inventes plazos ni números de formularios.
 
 ## 6. Cómo presentar la derivación al usuario
 

@@ -47,3 +47,11 @@ Necesitas saber:
 - Reclamo formal por escrito a la institución (canal indicado en su web), exigiendo reembolso y respuesta dentro del plazo legal.
 - Si en 30 días no hay respuesta o es insatisfactoria → escalar a SERNAC (sernac.cl) o CMF según corresponda.
 - Guardar comprobantes (cartola, mensajes, contratos).
+
+## 7. Corpus indexado adicional
+
+Dictámenes interpretativos SERNAC disponibles en el corpus (recuperables vía `search_corpus({ area: "cobros_indebidos" })` o `read_dictamen`):
+
+- **Dictamen SERNAC 18-feb-2026 — Descuentos asociados a tarjetas de crédito o débito** — `read_dictamen("art-88124")`.
+- **Dictamen SERNAC 29-sep-2022 — Garantías Ley 21.398 (Pro Consumidor)** — `read_dictamen("art-66847")`.
+- **Dictamen SERNAC 25-abr-2022 — Devolución y cambio de productos** — `read_dictamen("art-65384")`.

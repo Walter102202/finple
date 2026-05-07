@@ -1,0 +1,50 @@
+[
+  {
+    "skill": "fraude_suplantacion",
+    "dictamenId": "art-88180",
+    "alias": "Dictamen SERNAC 24-feb-2026 — Procedimiento ante fraude en medios de pago y transacciones electrónicas",
+    "url": "https://www.sernac.cl/portal/618/articles-88180_archivo_01.pdf"
+  },
+  {
+    "skill": "datos_personales",
+    "dictamenId": "art-63093",
+    "alias": "Dictamen SERNAC 12-ago-2021 — Información y tratamiento de datos personales (Ley 19.496)",
+    "url": "https://www.sernac.cl/portal/618/articles-63093_archivo_01.pdf"
+  },
+  {
+    "skill": "datos_personales",
+    "dictamenId": "art-65306",
+    "alias": "Dictamen SERNAC 11-abr-2022 — Aplicabilidad de la Ley del Consumidor en plataformas y redes sociales (datos personales)",
+    "url": "https://www.sernac.cl/portal/618/articles-65306_archivo_01.pdf"
+  },
+  {
+    "skill": "creditos_consumo",
+    "dictamenId": "art-64754",
+    "alias": "Dictamen SERNAC 31-ene-2022 — Vigencia de cotización y oferta de portabilidad financiera (créditos hipotecarios)",
+    "url": "https://www.sernac.cl/portal/618/articles-64754_archivo_01.pdf"
+  },
+  {
+    "skill": "creditos_consumo",
+    "dictamenId": "art-84769",
+    "alias": "Dictamen SERNAC 29-abr-2025 — Facultad de Cajas de Compensación para rechazar contratación de seguro de desgravamen (créditos sociales)",
+    "url": "https://www.sernac.cl/portal/618/articles-84769_archivo_01.pdf"
+  },
+  {
+    "skill": "cobros_indebidos",
+    "dictamenId": "art-88124",
+    "alias": "Dictamen SERNAC 18-feb-2026 — Descuentos asociados a tarjetas de crédito o débito",
+    "url": "https://www.sernac.cl/portal/618/articles-88124_archivo_01.pdf"
+  },
+  {
+    "skill": "cobros_indebidos",
+    "dictamenId": "art-66847",
+    "alias": "Dictamen SERNAC 29-sep-2022 — Garantías Ley 21.398 (Pro Consumidor)",
+    "url": "https://www.sernac.cl/portal/618/articles-66847_archivo_01.pdf"
+  },
+  {
+    "skill": "cobros_indebidos",
+    "dictamenId": "art-65384",
+    "alias": "Dictamen SERNAC 25-abr-2022 — Devolución y cambio de productos",
+    "url": "https://www.sernac.cl/portal/618/articles-65384_archivo_01.pdf"
+  }
+]

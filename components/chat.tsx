@@ -6,12 +6,62 @@ import { ChatComposer } from './chat-composer'
 
 type Attachment = { name: string; kind: 'pdf' | 'image' | 'other'; size: number }
 
+type Status =
+  | { key: 'analyzing' }
+  | { key: 'searching_corpus' }
+  | { key: 'reading_bcn' }
+  | { key: 'loading_skill'; area?: string }
+  | { key: 'preparing' }
+  | { key: 'consulting_other' }
+
 type DisplayMessage = {
   role: 'user' | 'assistant'
   text: string
   attachments?: Attachment[]
   streaming?: boolean
-  toolStatus?: string | null
+  status: Status | null
+}
+
+const SKILL_AREA: Record<string, string> = {
+  cobros_indebidos: 'cobros indebidos',
+  creditos_consumo: 'créditos',
+  fraude_suplantacion: 'fraude y suplantación',
+  datos_personales: 'datos personales',
+  criptoactivos_tributacion: 'criptoactivos',
+  fintech_inversiones: 'fintech e inversiones',
+  regulacion_autoridades: 'autoridades regulatorias',
+}
+
+function deriveStatus(name: string, input: Record<string, unknown>): Status {
+  if (name === 'Skill') {
+    const raw = typeof input.skill === 'string' ? input.skill : undefined
+    if (raw) {
+      const bare = raw.includes(':') ? raw.split(':').pop()! : raw
+      const area = SKILL_AREA[bare]
+      return { key: 'loading_skill', area }
+    }
+    return { key: 'loading_skill' }
+  }
+  if (name === 'search_corpus') return { key: 'searching_corpus' }
+  if (name === 'read_bcn_law') return { key: 'reading_bcn' }
+  return { key: 'consulting_other' }
+}
+
+function narrativeFor(s: Status): string {
+  switch (s.key) {
+    case 'analyzing':
+      return 'Analizando tu caso…'
+    case 'searching_corpus':
+      return 'Buscando la ley aplicable…'
+    case 'reading_bcn':
+      return 'Trayendo el texto desde la BCN…'
+    case 'loading_skill':
+      return s.area ? `Revisando casos de ${s.area}…` : 'Identificando el área…'
+    case 'preparing':
+      return 'Preparando la respuesta…'
+    case 'consulting_other':
+      return 'Consultando fuente…'
+  }
 }
 
 type ApiHistoryMessage = {
@@ -32,18 +82,6 @@ function classify(file: File): Attachment['kind'] {
   if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) return 'pdf'
   if (file.type.startsWith('image/')) return 'image'
   return 'other'
-}
-
-function summarizeToolInput(name: string, input: Record<string, unknown>): string {
-  if (name === 'fetch_official_source' && typeof input.url === 'string') {
-    try {
-      const u = new URL(input.url)
-      return `Consultando ${u.hostname}…`
-    } catch {
-      return 'Consultando fuente oficial…'
-    }
-  }
-  return `Usando ${name}…`
 }
 
 export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
@@ -82,12 +120,13 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
       role: 'user',
       text: message,
       attachments: attachments.length > 0 ? attachments : undefined,
+      status: null,
     }
     const placeholder: DisplayMessage = {
       role: 'assistant',
       text: '',
       streaming: true,
-      toolStatus: null,
+      status: { key: 'analyzing' },
     }
     const apiHistory: ApiHistoryMessage[] = messages.map((m) => ({
       role: m.role,
@@ -144,22 +183,26 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       setError(msg)
-      patchLastAssistant({ streaming: false, toolStatus: null })
+      patchLastAssistant({ streaming: false, status: null })
     } finally {
       setStreaming(false)
-      patchLastAssistant({ streaming: false, toolStatus: null })
+      patchLastAssistant({ streaming: false, status: null })
     }
 
     function handleEvent(evt: ServerEvent) {
       switch (evt.type) {
         case 'text':
-          patchLastAssistant((m) => ({ ...m, text: m.text + evt.text, toolStatus: null }))
+          patchLastAssistant((m) => ({
+            ...m,
+            text: m.text + evt.text,
+            status: evt.text.length > 0 ? null : m.status,
+          }))
           break
         case 'tool_executing':
-          patchLastAssistant({ toolStatus: summarizeToolInput(evt.name, evt.input) })
+          patchLastAssistant({ status: deriveStatus(evt.name, evt.input) })
           break
         case 'tool_done':
-          patchLastAssistant({ toolStatus: null })
+          patchLastAssistant({ status: { key: 'preparing' } })
           break
         case 'tool_call':
         case 'citation':
@@ -226,36 +269,30 @@ function MessageBubble({ message }: { message: DisplayMessage }) {
     )
   }
 
-  const isPending = message.streaming && message.text.length === 0
   return (
     <div className="flex justify-start">
       <div className="max-w-[90%] rounded-2xl rounded-bl-md border border-ink/10 bg-white/85 px-4 py-3 text-ink shadow-soft">
-        {message.toolStatus && (
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-cream-deep/70 px-2.5 py-0.5 text-xs text-ink-soft">
-            <Spinner small />
-            <span>{message.toolStatus}</span>
-          </div>
-        )}
-        {isPending && !message.toolStatus ? (
-          <ThinkingDots />
-        ) : (
-          <AssistantMarkdown text={message.text} />
-        )}
+        {message.status && <StatusIndicator status={message.status} />}
+        {message.text.length > 0 && <AssistantMarkdown text={message.text} />}
       </div>
     </div>
   )
 }
 
-function ThinkingDots() {
+function StatusIndicator({ status }: { status: Status }) {
   return (
-    <span className="inline-flex items-center gap-2 text-sm text-ink-soft">
+    <div
+      role="status"
+      aria-live="polite"
+      className="mb-2 inline-flex items-center gap-2 rounded-full bg-cream-deep/70 px-2.5 py-0.5 text-xs text-ink-soft"
+    >
       <span className="inline-flex gap-1">
         <Dot delay="0ms" />
         <Dot delay="160ms" />
         <Dot delay="320ms" />
       </span>
-      <span>Revisando normativa…</span>
-    </span>
+      <span>{narrativeFor(status)}</span>
+    </div>
   )
 }
 
@@ -265,19 +302,6 @@ function Dot({ delay }: { delay: string }) {
       className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-coral"
       style={{ animationDelay: delay }}
     />
-  )
-}
-
-function Spinner({ small = false }: { small?: boolean }) {
-  return (
-    <svg
-      className={`${small ? 'h-3 w-3' : 'h-4 w-4'} animate-spin text-coral`}
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.4" opacity="0.25" fill="none" />
-      <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-    </svg>
   )
 }
 

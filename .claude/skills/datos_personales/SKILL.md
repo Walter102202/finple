@@ -48,3 +48,10 @@ Si el usuario pregunta por algo que ocurre HOY (mayo 2026) → cita Ley 19.628. 
 
 - "La APDC ya recibe denuncias" antes del 1 dic 2026 — la agencia aún no opera.
 - "Tu derecho está protegido por el Art. X de la Ley 21.719" para hechos ocurridos hoy — esa ley aún no rige.
+
+## 7. Corpus indexado adicional
+
+Dictámenes interpretativos SERNAC disponibles en el corpus (recuperables vía `search_corpus({ area: "datos_personales" })` o `read_dictamen`):
+
+- **Dictamen SERNAC 12-ago-2021 — Información y tratamiento de datos personales (Ley 19.496)** — `read_dictamen("art-63093")`.
+- **Dictamen SERNAC 11-abr-2022 — Aplicabilidad de la Ley del Consumidor en plataformas y redes sociales (datos personales)** — `read_dictamen("art-65306")`.

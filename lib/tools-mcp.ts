@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { embedQuery } from './embeddings'
 import { getSupabaseAdmin } from './supabase'
 import { fetchBcnXml, extractArticulos, extractMetadata, buildOfficialUrl } from './bcn-xml'
+import { runFetchOfficialSource } from './tools'
 
 const SKILL_AREAS = [
   'creditos_consumo',
@@ -14,21 +15,36 @@ const SKILL_AREAS = [
   'regulacion_autoridades',
 ] as const
 
+const SOURCE_TYPES = ['ley', 'ncg', 'dictamen'] as const
+
 type MatchedChunk = {
+  source_type: string
+  id_norma: string
   ley_alias: string
-  articulo_num: string
+  documento_id: string
+  documento_label: string
   contenido: string
   url_oficial: string
   area_skill: string
   similarity: number
 }
 
+type CorpusRow = {
+  ley_alias: string
+  documento_id: string
+  documento_label: string | null
+  contenido: string
+  url_oficial: string
+  area_skill: string
+}
+
 const searchCorpusTool = tool(
   'search_corpus',
   [
-    'Busca artículos de leyes chilenas (BCN) semánticamente relevantes para una pregunta concreta.',
-    'Devuelve los 6 mejores chunks con cita exacta, número de artículo, alias de la ley y URL oficial.',
-    'Úsalo SIEMPRE antes de afirmar qué dice una ley específica. Si los resultados no responden, llama read_bcn_law.',
+    'Busca pasajes verificables en el corpus normativo Finple.',
+    'Cubre tres tipos de fuente: leyes BCN (source=ley), Normas de Carácter General de la CMF (source=ncg) y dictámenes interpretativos del SERNAC (source=dictamen).',
+    'Devuelve los 6 mejores chunks con cita exacta, etiqueta del documento (artículo / numeral / sección), alias y URL oficial.',
+    'Úsalo SIEMPRE antes de afirmar qué dice una norma específica. Si no devuelve el pasaje, llama read_bcn_law / read_ncg / read_dictamen según el tipo.',
   ].join(' '),
   {
     query: z
@@ -39,8 +55,14 @@ const searchCorpusTool = tool(
       .enum(SKILL_AREAS)
       .optional()
       .describe('Filtra por área temática si tienes certeza. Omite para buscar en todo el corpus.'),
+    sourceType: z
+      .enum(SOURCE_TYPES)
+      .optional()
+      .describe(
+        "Filtra por tipo: 'ley' (BCN), 'ncg' (CMF), 'dictamen' (SERNAC). Omite para buscar en los tres.",
+      ),
   },
-  async ({ query, area }) => {
+  async ({ query, area, sourceType }) => {
     try {
       const embedding = await embedQuery(query)
       const supabase = getSupabaseAdmin()
@@ -48,6 +70,7 @@ const searchCorpusTool = tool(
         query_embedding: embedding,
         match_count: 6,
         filter_area: area ?? null,
+        filter_source_type: sourceType ?? null,
       })
       if (error) {
         return {
@@ -61,16 +84,16 @@ const searchCorpusTool = tool(
           content: [
             {
               type: 'text' as const,
-              text: 'Sin coincidencias en el corpus. Considera afinar la consulta o llamar read_bcn_law con una idNorma específica.',
+              text: 'Sin coincidencias en el corpus. Considera afinar la consulta o llamar read_bcn_law / read_ncg / read_dictamen.',
             },
           ],
         }
       }
       const formatted = rows
-        .map(
-          (r, i) =>
-            `[${i + 1}] ${r.ley_alias} — ${r.articulo_num} (sim=${r.similarity.toFixed(2)}, area=${r.area_skill})\n${r.contenido.slice(0, 1200)}\nFuente: ${r.url_oficial}`,
-        )
+        .map((r, i) => {
+          const label = r.documento_label || r.documento_id
+          return `[${i + 1}] ${r.ley_alias} — ${label} (source=${r.source_type}, sim=${r.similarity.toFixed(2)}, area=${r.area_skill})\n${r.contenido.slice(0, 1200)}\nFuente: ${r.url_oficial}`
+        })
         .join('\n\n---\n\n')
       return { content: [{ type: 'text' as const, text: formatted }] }
     } catch (e) {
@@ -126,7 +149,10 @@ const readBcnLawTool = tool(
         selected = chunks.filter(
           (c) =>
             c.articulo_num.toLowerCase().includes(needle) ||
-            c.articulo_num.toLowerCase().replace(/[^\wíáéóú]/g, '').includes(needle.replace(/[^\wíáéóú]/g, '')),
+            c.articulo_num
+              .toLowerCase()
+              .replace(/[^\wíáéóú]/g, '')
+              .includes(needle.replace(/[^\wíáéóú]/g, '')),
         )
         if (selected.length === 0) selected = chunks.slice(0, 3)
       }
@@ -161,13 +187,137 @@ const readBcnLawTool = tool(
   },
 )
 
+async function readCorpusDoc(
+  sourceType: 'ncg' | 'dictamen',
+  idNorma: string,
+): Promise<{ content: { type: 'text'; text: string }[]; isError?: boolean }> {
+  try {
+    const supabase = getSupabaseAdmin()
+    const { data, error } = await supabase
+      .from('ley_chunks')
+      .select('ley_alias,documento_id,documento_label,contenido,url_oficial,area_skill')
+      .eq('source_type', sourceType)
+      .eq('id_norma', idNorma)
+      .order('documento_id')
+      .limit(20)
+    if (error) {
+      return {
+        content: [{ type: 'text' as const, text: `Error leyendo ${sourceType} ${idNorma}: ${error.message}` }],
+        isError: true,
+      }
+    }
+    const rows = (data ?? []) as CorpusRow[]
+    if (rows.length === 0) {
+      const noun = sourceType === 'ncg' ? 'NCG' : 'Dictamen'
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `${noun} ${idNorma} no está en el corpus indexado. Si crees que debería estar, avisa al equipo Finple para agregarlo al manifest.`,
+          },
+        ],
+      }
+    }
+    const alias = rows[0].ley_alias
+    const url = rows[0].url_oficial
+    const area = rows[0].area_skill
+    const limited = rows.slice(0, 10)
+    const header = `${alias}\nÁrea: ${area}\nFuente oficial: ${url}\nTotal secciones disponibles: ${rows.length}\n`
+    const body = limited
+      .map((r) => `\n--- ${r.documento_label || r.documento_id} ---\n${r.contenido.slice(0, 2000)}`)
+      .join('\n')
+    const footer =
+      rows.length > limited.length
+        ? `\n\n[Mostrando ${limited.length} de ${rows.length} secciones. Usa search_corpus para buscar dentro de este documento.]`
+        : ''
+    return { content: [{ type: 'text' as const, text: `${header}${body}${footer}` }] }
+  } catch (e) {
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Excepción leyendo ${sourceType} ${idNorma}: ${e instanceof Error ? e.message : String(e)}`,
+        },
+      ],
+      isError: true,
+    }
+  }
+}
+
+const readNcgTool = tool(
+  'read_ncg',
+  [
+    'Devuelve los numerales indexados de una Norma de Carácter General de la CMF.',
+    'Lee desde el corpus ya ingestado (no descarga el PDF al runtime), así que solo funciona con NCGs presentes en scripts/ncg-corpus.json.',
+    'Úsalo cuando search_corpus apunte a una NCG y necesites el contexto de varios numerales.',
+  ].join(' '),
+  {
+    ncgId: z
+      .string()
+      .regex(/^\d+$/, 'ncgId debe ser numérico')
+      .describe('Número de la NCG (ej: "502" para NCG 502 sobre RPSF).'),
+  },
+  async ({ ncgId }) => readCorpusDoc('ncg', ncgId),
+)
+
+const readDictamenTool = tool(
+  'read_dictamen',
+  [
+    'Devuelve el texto íntegro de un dictamen interpretativo del SERNAC indexado en el corpus.',
+    'Lee desde el corpus (no re-fetchea sernac.cl).',
+    'Úsalo cuando search_corpus apunte a un dictamen y quieras el detalle completo.',
+  ].join(' '),
+  {
+    dictamenId: z
+      .string()
+      .min(2)
+      .describe('Identificador del dictamen tal como aparece en el manifest (ej: "art-88180").'),
+  },
+  async ({ dictamenId }) => readCorpusDoc('dictamen', dictamenId),
+)
+
+const fetchOfficialSourceTool = tool(
+  'fetch_official_source',
+  [
+    'Descarga texto plano (hasta 8000 chars) desde una URL oficial chilena para verificar información NO-ley:',
+    'RPSF de la CMF (registro de fintech autorizadas), alertas CMF al público, dictámenes SERNAC live,',
+    'plazos vigentes, comunicados ANCI, info SII actualizada, Ley Fácil de BCN.',
+    'NO la uses para citar texto de leyes — para eso usa search_corpus, read_bcn_law, read_ncg o read_dictamen.',
+    'Dominios permitidos: bcn.cl, cmfchile.cl, sernac.cl, sii.cl, anci.gob.cl, suseso.cl, spensiones.cl, csirt.gob.cl, bcentral.cl, gob.cl.',
+  ].join(' '),
+  {
+    url: z
+      .string()
+      .url()
+      .describe(
+        'URL completa de la página o documento oficial chileno (debe estar en la lista de dominios permitidos).',
+      ),
+    reason: z
+      .string()
+      .describe(
+        'Qué afirmación o dato concreto vas a verificar — ej. "verificar si TPay aparece en el RPSF".',
+      ),
+  },
+  async (input) => {
+    const text = await runFetchOfficialSource(input)
+    const isError = text.startsWith('Error')
+    return {
+      content: [{ type: 'text' as const, text }],
+      ...(isError ? { isError: true } : {}),
+    }
+  },
+)
+
 export const finpleMcpServer = createSdkMcpServer({
   name: 'finple-corpus',
-  version: '0.1.0',
-  tools: [searchCorpusTool, readBcnLawTool],
+  version: '0.3.0',
+  tools: [searchCorpusTool, readBcnLawTool, readNcgTool, readDictamenTool, fetchOfficialSourceTool],
 })
 
 export const FINPLE_TOOL_NAMES = [
   'mcp__finple-corpus__search_corpus',
   'mcp__finple-corpus__read_bcn_law',
+  'mcp__finple-corpus__read_ncg',
+  'mcp__finple-corpus__read_dictamen',
+  'mcp__finple-corpus__fetch_official_source',
 ] as const

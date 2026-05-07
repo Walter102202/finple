@@ -33,11 +33,11 @@ Necesitas saber:
 
 - **Fintech registrada en RPSF y problema regulatorio** → **CMF** (cmfchile.cl/atencion-al-publico).
 - **Plataforma NO registrada que ofrece servicios regulados** → posible operación ilegal: alerta CMF + denuncia.
-- **Promesa de rendimiento irreal o esquema piramidal sospechoso** → derivar a Skill \`fraude_suplantacion\` y revisar **alertas CMF al público** (https://www.cmfchile.cl/portal/principal/613/w3-propertyvalue-43545.html).
+- **Promesa de rendimiento irreal o esquema piramidal sospechoso** → derivar a Skill \`fraude_suplantacion\` y revisar **alertas CMF al público** llamando \`fetch_official_source({ url: "https://www.cmfchile.cl/portal/principal/613/w3-propertyvalue-43545.html", reason: "buscar alertas vigentes contra <entidad>" })\` y buscar el nombre de la entidad en la respuesta.
 
 ## 5. Protocolo obligatorio antes de responder
 
-1. Si el usuario menciona una plataforma específica, **revisa primero el RPSF** (https://www.cmfchile.cl/institucional/estadisticas/seg_rgpsf.php) — si no está, dilo claramente.
+1. Si el usuario menciona una plataforma específica, **revisa primero el RPSF** llamando \`fetch_official_source({ url: "https://www.cmfchile.cl/institucional/estadisticas/seg_rgpsf.php", reason: "verificar si <plataforma> está inscrita en el RPSF" })\` y busca el nombre textualmente en el resultado. Si no aparece, comunícalo claro: "no encuentro a <plataforma> en el RPSF de la CMF".
 2. \`search_corpus({ query: "<servicio que pregunta>", area: "fintech_inversiones" })\` para anclar el marco normativo.
 3. Si necesitas el articulado exacto de la Ley 21.521, llama \`read_bcn_law({ idNorma: "1187323" })\`.
 4. Solo entonces redacta Fase 5.
@@ -48,3 +48,10 @@ Necesitas saber:
 - Plataforma no encontrada en RPSF que dice ofrecer "inversiones reguladas".
 - Pagos por canales no oficiales (transferencias a personas naturales, criptos a wallets no identificadas).
 - Presión por urgencia ("último día").
+
+## 7. Corpus indexado adicional
+
+Documentos NCG CMF disponibles en el corpus (recuperables vía `search_corpus({ area: "fintech_inversiones" })` o `read_ncg`):
+
+- **NCG 502 CMF (RPSF)** — `read_ncg("502")` para el detalle por numerales.
+- **NCG 514 CMF (Sistema de Finanzas Abiertas)** — `read_ncg("514")`.

@@ -17,6 +17,10 @@ tsconfig.tsbuildinfo
 # Dumps temporales del parser BCN
 scripts/dump-*.xml
 
+# Caches de tooling local (Playwright MCP, Supabase CLI)
+.playwright-mcp/
+supabase/.temp/
+
 # Briefing privado del proyecto — no se publica
 info/
 

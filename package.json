@@ -6,18 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ingest:laws": "tsx scripts/ingest-corpus.ts",
+    "ingest:ncg": "tsx scripts/ingest-ncg.ts",
+    "ingest:dictamen": "tsx scripts/ingest-dictamen.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.131",
     "@anthropic-ai/sdk": "^0.94.0",
     "@supabase/supabase-js": "^2.105.3",
+    "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "fast-xml-parser": "^5.7.3",
     "next": "14.2.15",
+    "pdfjs-dist": "^4.10.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^10.1.0",
+    "unpdf": "^1.6.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -1,0 +1,38 @@
+[
+  {
+    "skill": "fintech_inversiones",
+    "ncgId": "502",
+    "alias": "NCG 502 CMF — Registro de Prestadores de Servicios Financieros (Ley Fintec 21.521)",
+    "url": "https://www.cmfchile.cl/normativa/ncg_502_2024.pdf"
+  },
+  {
+    "skill": "fintech_inversiones",
+    "ncgId": "514",
+    "alias": "NCG 514 CMF — Sistema de Finanzas Abiertas (Open Finance, Ley Fintec 21.521)",
+    "url": "https://www.cmfchile.cl/normativa/ncg_514_2024.pdf"
+  },
+  {
+    "skill": "creditos_consumo",
+    "ncgId": "484",
+    "alias": "NCG 484 CMF — Comisiones en operaciones de crédito de dinero (Ley 18.010)",
+    "url": "https://www.cmfchile.cl/normativa/ncg_484_2022.pdf"
+  },
+  {
+    "skill": "fraude_suplantacion",
+    "ncgId": "454",
+    "alias": "NCG 454 CMF — Gestión de riesgo operacional y ciberseguridad (bancos y entidades supervisadas)",
+    "url": "https://www.cmfchile.cl/normativa/ncg_454_2021.pdf"
+  },
+  {
+    "skill": "fraude_suplantacion",
+    "ncgId": "487",
+    "alias": "NCG 487 CMF — Información sobre fraudes en transacciones electrónicas (Ley 21.234)",
+    "url": "https://www.cmfchile.cl/normativa/ncg_487_2022.pdf"
+  },
+  {
+    "skill": "fraude_suplantacion",
+    "ncgId": "510",
+    "alias": "NCG 510 CMF — Gestión de riesgo operacional para cooperativas de ahorro y crédito",
+    "url": "https://www.cmfchile.cl/normativa/ncg_510_2024.pdf"
+  }
+]

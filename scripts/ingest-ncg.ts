@@ -1,56 +1,46 @@
 import 'dotenv/config'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import {
-  fetchBcnXml,
-  extractArticulos,
-  extractMetadata,
-  buildOfficialUrl,
-} from '../lib/bcn-xml'
+import { fetchPdfBuffer, extractPdfText, cleanPdfText } from '../lib/pdf-text'
+import { extractNcgChunks } from '../lib/ncg-chunker'
 import { embedDocuments } from '../lib/embeddings'
 import { getSupabaseAdmin } from '../lib/supabase'
 
-type Entry = { skill: string; idNorma: string; alias: string }
+type Entry = { skill: string; ncgId: string; alias: string; url: string }
 
 const BATCH_SIZE = 32
 const MAX_INPUT_CHARS = 4_000
 
-async function ingestEntry(entry: Entry): Promise<{ ingested: number; skipped: number }> {
-  console.log(`\n[INGEST] ${entry.alias} (idNorma=${entry.idNorma}) → skill=${entry.skill}`)
-  const xml = await fetchBcnXml(entry.idNorma)
-  const meta = extractMetadata(xml, entry.idNorma)
-  console.log(`  ${meta.tipo} N° ${meta.numero} — ${meta.titulo.slice(0, 80)}`)
-  const allChunks = extractArticulos(xml)
-  if (allChunks.length === 0) {
-    console.warn('  ⚠ 0 artículos extraídos — revisa el parser')
-    return { ingested: 0, skipped: 0 }
+async function ingestEntry(entry: Entry): Promise<{ ingested: number; chunks: number }> {
+  console.log(`\n[INGEST NCG] ${entry.alias}`)
+  console.log(`  URL: ${entry.url}`)
+  const buf = await fetchPdfBuffer(entry.url)
+  console.log(`  PDF descargado: ${(buf.byteLength / 1024).toFixed(1)} KB`)
+  const { text, pages } = await extractPdfText(buf)
+  console.log(`  Texto extraído: ${text.length} chars en ${pages} páginas`)
+  const cleaned = cleanPdfText(text)
+  const chunks = extractNcgChunks(cleaned)
+  if (chunks.length === 0) {
+    console.warn('  ⚠ 0 chunks generados — revisa el chunker o el PDF')
+    return { ingested: 0, chunks: 0 }
   }
-  const seen = new Set<string>()
-  const chunks = allChunks.filter((c) => {
-    if (seen.has(c.articulo_num)) return false
-    seen.add(c.articulo_num)
-    return true
-  })
-  const dropped = allChunks.length - chunks.length
-  console.log(`  ${chunks.length} artículos${dropped > 0 ? ` (${dropped} duplicados omitidos)` : ''}`)
+  console.log(`  ${chunks.length} chunks (numerales o bloques)`)
 
   const supabase = getSupabaseAdmin()
-  const url = buildOfficialUrl(entry.idNorma)
   let ingested = 0
-
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const slice = chunks.slice(i, i + BATCH_SIZE)
     const inputs = slice.map((c) => c.contenido.slice(0, MAX_INPUT_CHARS))
     const embeddings = await embedDocuments(inputs)
     const rows = slice.map((c, j) => ({
-      source_type: 'ley',
-      id_norma: entry.idNorma,
+      source_type: 'ncg',
+      id_norma: entry.ncgId,
       ley_alias: entry.alias,
-      articulo_num: c.articulo_num,
-      documento_id: c.articulo_num,
-      documento_label: c.articulo_num,
+      articulo_num: null as string | null,
+      documento_id: c.documento_id,
+      documento_label: c.documento_label,
       contenido: c.contenido,
-      url_oficial: url,
+      url_oficial: entry.url,
       area_skill: entry.skill,
       tokens_aprox: Math.ceil(c.contenido.length / 4),
       embedding: embeddings[j],
@@ -62,36 +52,34 @@ async function ingestEntry(entry: Entry): Promise<{ ingested: number; skipped: n
     ingested += rows.length
     process.stdout.write('.')
   }
-  console.log(`\n  ✓ ${entry.alias}: ${ingested} chunks upserteados`)
-  return { ingested, skipped: 0 }
+  console.log(`\n  ✓ NCG ${entry.ncgId}: ${ingested} chunks upserteados`)
+  return { ingested, chunks: chunks.length }
 }
 
 async function main() {
-  const manifestPath = path.resolve(process.cwd(), 'scripts/corpus.json')
+  const manifestPath = path.resolve(process.cwd(), 'scripts/ncg-corpus.json')
   const manifest = JSON.parse(await readFile(manifestPath, 'utf-8')) as Entry[]
 
-  let totalIngested = 0
+  let total = 0
   const failures: Array<{ alias: string; error: string }> = []
-
   for (const entry of manifest) {
     try {
       const { ingested } = await ingestEntry(entry)
-      totalIngested += ingested
+      total += ingested
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       console.error(`  ✗ ${entry.alias}: ${msg}`)
       failures.push({ alias: entry.alias, error: msg })
     }
   }
-
   console.log(`\n========================================`)
-  console.log(`Total chunks ingested: ${totalIngested}`)
+  console.log(`Total chunks NCG ingestados: ${total}`)
   if (failures.length > 0) {
     console.log(`\nFailures (${failures.length}):`)
     for (const f of failures) console.log(`  - ${f.alias}: ${f.error}`)
     process.exit(1)
   }
-  console.log(`Todo OK.`)
+  console.log('Todo OK.')
 }
 
 main().catch((e) => {
