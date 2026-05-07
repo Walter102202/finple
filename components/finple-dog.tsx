@@ -18,7 +18,7 @@ export function FinpleDog({
   useEffect(() => {
     if (askPulse === 0) return
     setThinking(true)
-    const id = setTimeout(() => setThinking(false), 2200)
+    const id = setTimeout(() => setThinking(false), 3500)
     return () => clearTimeout(id)
   }, [askPulse])
 
