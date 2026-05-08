@@ -4,7 +4,7 @@ Asistente conversacional que ayuda a personas comunes en Chile —sin formación
 
 **Segmento primario:** adultos 25–50 que entran a invertir digital (acciones, cripto, créditos hipotecarios) o tienen dudas sobre cobros y contratos. La brecha de literacy regulatoria alcanza a unos **4 millones de personas** en ese rango — Censo 2024 ([INE](https://censo2024.ine.gob.cl/)) × CAF *Capacidades Financieras en América Latina: Chile 2023* (55% sin nivel mínimo aceptable de conocimiento financiero).
 
-> Construido por el equipo **Knowledge Builders** para el **Claude Impact Lab Chile 2026** — desafío *Inclusión Financiera para Chile*, Línea 01: traducir la normativa CMF/SII a lenguaje ciudadano, con **cero alucinación regulatoria** como gate de calidad.
+> Construido por el equipo **Knowledge Builders**, **ganador del Claude Impact Lab Chile 2026** — primer lugar Línea 01 - inclusión financiera y mayor puntaje general del Lab. La Línea 01 pedía traducir la normativa CMF/SII a lenguaje ciudadano, con **cero alucinación regulatoria** como gate de calidad.
 >
 > **Producción:** [finple-alpha.vercel.app](https://finple-alpha.vercel.app)
 
