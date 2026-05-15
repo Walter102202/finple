@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { runFinpleAgent, type ChatTurn } from '@/lib/agent'
 import { attachmentsToContentBlocks, AttachmentError } from '@/lib/attachments'
+import { FRIENDLY_COPY } from '@/lib/api-errors'
 
 export const runtime = 'nodejs'
 export const maxDuration = 120
@@ -33,9 +34,10 @@ function parseHistory(raw: string | null): ChatTurn[] {
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('[chat] ANTHROPIC_API_KEY ausente — respondiendo con no_tokens')
     return NextResponse.json(
-      { error: 'Falta ANTHROPIC_API_KEY en el servidor.' },
-      { status: 500 },
+      { error: FRIENDLY_COPY.no_tokens, code: 'no_tokens' },
+      { status: 503 },
     )
   }
 

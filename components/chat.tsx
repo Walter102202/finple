@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { ChatComposer } from './chat-composer'
 
+type ErrorCode = 'no_tokens' | 'auth' | 'unknown'
+
 type Attachment = { name: string; kind: 'pdf' | 'image' | 'other'; size: number }
 
 type Status =
@@ -20,6 +22,7 @@ type DisplayMessage = {
   attachments?: Attachment[]
   streaming?: boolean
   status: Status | null
+  kind?: 'normal' | 'no_tokens'
 }
 
 const SKILL_AREA: Record<string, string> = {
@@ -76,7 +79,7 @@ type ServerEvent =
   | { type: 'tool_executing'; name: string; input: Record<string, unknown> }
   | { type: 'tool_done'; name: string; ok: boolean }
   | { type: 'done' }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: string; code?: ErrorCode }
 
 function classify(file: File): Attachment['kind'] {
   if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) return 'pdf'
@@ -87,7 +90,7 @@ function classify(file: File): Attachment['kind'] {
 export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
   const [messages, setMessages] = useState<DisplayMessage[]>([])
   const [streaming, setStreaming] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errorState, setErrorState] = useState<{ code: ErrorCode; message: string } | null>(null)
   const scrollAnchor = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -135,7 +138,7 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
 
     setMessages((prev) => [...prev, userMsg, placeholder])
     setStreaming(true)
-    setError(null)
+    setErrorState(null)
 
     const formData = new FormData()
     formData.append('message', message)
@@ -145,11 +148,17 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
     try {
       const res = await fetch('/api/chat', { method: 'POST', body: formData })
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}))
-        throw new Error(errBody.error || `Error ${res.status}`)
+        const errBody = (await res.json().catch(() => ({}))) as { error?: string; code?: ErrorCode }
+        const err = new Error(errBody.error || `Error ${res.status}`) as Error & { code?: ErrorCode }
+        err.code = errBody.code ?? 'unknown'
+        throw err
       }
       const reader = res.body?.getReader()
-      if (!reader) throw new Error('El servidor no envió un stream válido.')
+      if (!reader) {
+        const err = new Error('El servidor no envió un stream válido.') as Error & { code?: ErrorCode }
+        err.code = 'unknown'
+        throw err
+      }
 
       const decoder = new TextDecoder()
       let buffer = ''
@@ -182,11 +191,16 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
-      setError(msg)
-      patchLastAssistant({ streaming: false, status: null })
+      const code = ((e as { code?: ErrorCode }).code ?? 'unknown') as ErrorCode
+      setErrorState({ code, message: msg })
+      if (code === 'no_tokens') {
+        patchLastAssistant({ streaming: false, status: null, kind: 'no_tokens', text: '' })
+      } else {
+        patchLastAssistant({ streaming: false, status: null })
+      }
     } finally {
       setStreaming(false)
-      patchLastAssistant({ streaming: false, status: null })
+      patchLastAssistant((m) => ({ ...m, streaming: false, status: null }))
     }
 
     function handleEvent(evt: ServerEvent) {
@@ -208,8 +222,11 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
         case 'citation':
           // Aún no renderizamos citaciones inline; v2.
           break
-        case 'error':
-          throw new Error(evt.message)
+        case 'error': {
+          const err = new Error(evt.message) as Error & { code?: ErrorCode }
+          err.code = evt.code ?? 'unknown'
+          throw err
+        }
         case 'done':
           // Cierre suave; el loop terminará cuando llegue el done del reader.
           break
@@ -234,9 +251,9 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
         placeholder={messages.length > 0 ? '' : undefined}
       />
 
-      {error && (
+      {errorState && errorState.code !== 'no_tokens' && (
         <p role="alert" className="px-2 text-sm text-sienna">
-          Algo no funcionó: {error}
+          Algo no funcionó: {errorState.message}
         </p>
       )}
 
@@ -273,11 +290,40 @@ function MessageBubble({ message }: { message: DisplayMessage }) {
     )
   }
 
+  if (message.kind === 'no_tokens') {
+    return <NoTokensBubble />
+  }
+
   return (
     <div className="flex justify-start">
       <div className="max-w-[90%] rounded-2xl rounded-bl-md border border-ink/10 bg-white/85 px-4 py-3 text-ink shadow-soft">
         {message.status && <StatusIndicator status={message.status} />}
         {message.text.length > 0 && <AssistantMarkdown text={message.text} />}
+      </div>
+    </div>
+  )
+}
+
+function NoTokensBubble() {
+  return (
+    <div className="flex justify-start">
+      <div
+        role="alert"
+        className="max-w-[90%] rounded-2xl rounded-bl-md border border-coral/30 bg-cream-deep/50 px-4 py-3 text-ink shadow-soft"
+      >
+        <div className="flex items-start gap-2.5">
+          <svg viewBox="0 0 20 20" className="mt-0.5 h-4 w-4 shrink-0 text-coral" aria-hidden>
+            <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.4" fill="none" />
+            <path d="M10 6v4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            <circle cx="10" cy="13.5" r="0.9" fill="currentColor" />
+          </svg>
+          <div>
+            <p className="font-semibold text-ink">No quedan tokens</p>
+            <p className="mt-0.5 text-sm text-ink-soft">
+              Finple se quedó sin saldo o no logró conectarse al modelo. Intenta de nuevo en unos minutos.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

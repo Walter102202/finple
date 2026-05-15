@@ -2,6 +2,7 @@ import { query, type SDKMessage, type SDKUserMessage } from '@anthropic-ai/claud
 import type { ContentBlockParam, MessageParam } from '@anthropic-ai/sdk/resources/messages'
 import { finpleMcpServer, FINPLE_TOOL_NAMES } from './tools-mcp'
 import { buildSystemPrompt } from './system-prompt'
+import { classifyAgentError, FRIENDLY_COPY, type ErrorCode } from './api-errors'
 
 export type FinpleEvent =
   | { type: 'text'; text: string }
@@ -11,7 +12,7 @@ export type FinpleEvent =
   | { type: 'tool_done'; name: string; ok: boolean }
   | { type: 'skill_loaded'; name: string }
   | { type: 'done' }
-  | { type: 'error'; message: string }
+  | { type: 'error'; message: string; code: ErrorCode }
 
 export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
@@ -182,7 +183,8 @@ export async function* runFinpleAgent(
     }
     console.log('[agent] loop done, total msgs=' + messageCount)
   } catch (e) {
-    console.error('[agent] caught error:', e)
-    yield { type: 'error', message: e instanceof Error ? e.message : String(e) }
+    const { code, message: raw } = classifyAgentError(e)
+    console.error('[agent] caught error:', code, raw, e)
+    yield { type: 'error', code, message: FRIENDLY_COPY[code] }
   }
 }
