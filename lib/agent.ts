@@ -177,6 +177,27 @@ export async function* runFinpleAgent(
       }
 
       if (msg.type === 'result') {
+        const r = msg as unknown as {
+          subtype?: string
+          is_error?: boolean
+          api_error_status?: number | null
+          errors?: string[]
+        }
+        if (r.is_error || (typeof r.subtype === 'string' && r.subtype !== 'success')) {
+          const errorText = Array.isArray(r.errors) ? r.errors.join(' | ') : ''
+          const synthetic = Object.assign(
+            new Error(errorText || r.subtype || 'agent_result_error'),
+            { status: typeof r.api_error_status === 'number' ? r.api_error_status : undefined },
+          )
+          const classified = classifyAgentError(synthetic)
+          let code = classified.code
+          if (code === 'unknown' && (r.subtype === 'error_during_execution' || r.subtype === 'error_max_budget_usd')) {
+            code = 'no_tokens'
+          }
+          console.error('[agent] result error:', r.subtype, code, errorText)
+          yield { type: 'error', code, message: FRIENDLY_COPY[code] }
+          return
+        }
         yield { type: 'done' }
         return
       }

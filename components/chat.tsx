@@ -200,7 +200,13 @@ export function Chat({ onAsk }: { onAsk?: () => void } = {}) {
       }
     } finally {
       setStreaming(false)
-      patchLastAssistant((m) => ({ ...m, streaming: false, status: null }))
+      patchLastAssistant((m) => {
+        const next = { ...m, streaming: false, status: null }
+        if (next.kind !== 'no_tokens' && next.text.length === 0) {
+          next.kind = 'no_tokens'
+        }
+        return next
+      })
     }
 
     function handleEvent(evt: ServerEvent) {
