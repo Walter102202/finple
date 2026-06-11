@@ -1,7 +1,12 @@
-import { query, type SDKMessage, type SDKUserMessage } from '@anthropic-ai/claude-agent-sdk'
+import {
+  query,
+  SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+  type SDKMessage,
+  type SDKUserMessage,
+} from '@anthropic-ai/claude-agent-sdk'
 import type { ContentBlockParam, MessageParam } from '@anthropic-ai/sdk/resources/messages'
 import { finpleMcpServer, FINPLE_TOOL_NAMES } from './tools-mcp'
-import { buildSystemPrompt } from './system-prompt'
+import { SYSTEM_PROMPT_STATIC, buildDynamicSection } from './system-prompt'
 import { classifyAgentError, FRIENDLY_COPY, type ErrorCode } from './api-errors'
 
 export type FinpleEvent =
@@ -83,7 +88,13 @@ export async function* runFinpleAgent(
       options: {
         cwd: process.cwd(),
         model: 'claude-sonnet-4-6',
-        systemPrompt: buildSystemPrompt(),
+        // Prompt caching: lo anterior al boundary (junto a los tool schemas) se
+        // cachea cross-session; lo posterior (fecha del día) queda fuera del prefijo.
+        systemPrompt: [
+          SYSTEM_PROMPT_STATIC,
+          SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
+          buildDynamicSection(),
+        ],
         mcpServers: { 'finple-corpus': finpleMcpServer },
         allowedTools: [...FINPLE_TOOL_NAMES, 'Skill'],
         settingSources: ['project'],
@@ -182,6 +193,20 @@ export async function* runFinpleAgent(
           is_error?: boolean
           api_error_status?: number | null
           errors?: string[]
+          usage?: {
+            input_tokens?: number
+            cache_creation_input_tokens?: number
+            cache_read_input_tokens?: number
+          }
+        }
+        // Verificación de prompt caching: cache_read > 0 = hit del prefijo cacheado.
+        // Total del prompt = input + cache_write + cache_read.
+        if (r.usage) {
+          console.log(
+            '[agent] usage — cache_read=' + (r.usage.cache_read_input_tokens ?? 0) +
+              ' cache_write=' + (r.usage.cache_creation_input_tokens ?? 0) +
+              ' input=' + (r.usage.input_tokens ?? 0),
+          )
         }
         if (r.is_error || (typeof r.subtype === 'string' && r.subtype !== 'success')) {
           const errorText = Array.isArray(r.errors) ? r.errors.join(' | ') : ''

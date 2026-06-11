@@ -94,7 +94,11 @@ for await (const msg of query({
   prompt,
   options: {
     model: 'claude-sonnet-4-6',
-    systemPrompt: buildSystemPrompt(),
+    systemPrompt: [
+      SYSTEM_PROMPT_STATIC,           // prefijo cacheado cross-session
+      SYSTEM_PROMPT_DYNAMIC_BOUNDARY, // marker del Agent SDK
+      buildDynamicSection(),          // fecha del día, fuera del cache
+    ],
     mcpServers: { 'finple-corpus': finpleMcpServer },
     allowedTools: [...FINPLE_TOOL_NAMES, 'Skill'],
     settingSources: ['project'],
@@ -283,32 +287,24 @@ npm run dev
 
 ---
 
-## Pendientes técnicos
+## Prompt caching
 
-### Prompt caching del system prompt + tool schemas
+El system prompt (~2k tokens) y los esquemas de los 5 MCP tools son estables entre requests. Con el marker `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` del Agent SDK, ese prefijo se cachea cross-session y las lecturas posteriores cuestan ~0.1× del input normal (Sonnet 4.6, mínimo cacheable 2048 tokens):
 
-Hoy cada turno paga input tokens completos por el system prompt (~2k tokens) y los esquemas de los 5 MCP tools. Con Sonnet 4.6 (mínimo cacheable 2048 tokens), esa porción es estable y se puede cachear con costo de lectura ~0.1× del normal — ahorro estimado ~80-90% del input estable después del primer turno.
+- `lib/system-prompt.ts` — `SYSTEM_PROMPT_STATIC` (identidad + flujo + reglas + docs de tools, **congelado**: nada de `process.env.*` ni timestamps) y `buildDynamicSection()` (solo la fecha del día en Chile).
+- `lib/agent.ts` — `systemPrompt` como array `[SYSTEM_PROMPT_STATIC, SYSTEM_PROMPT_DYNAMIC_BOUNDARY, buildDynamicSection()]`. Lo anterior al boundary entra al cache; lo posterior no.
+- `lib/agent.ts` (handler del mensaje `result`) — loggea `cache_read` / `cache_write` / `input` para auditar hits.
 
-El Agent SDK no usa `cache_control: { type: 'ephemeral' }` directamente; expone el marker `SYSTEM_PROMPT_DYNAMIC_BOUNDARY` para separar la porción cacheable de la dinámica:
+**Verificación** (2026-06-11): dos corridas consecutivas de `npx tsx scripts/smoke-mcp-agent.ts` —
 
-```ts
-import { SYSTEM_PROMPT_DYNAMIC_BOUNDARY } from '@anthropic-ai/claude-agent-sdk'
+| Corrida | cache_read | cache_write | input |
+|---|---:|---:|---:|
+| 1ª | 82 638 | 25 192 | 10 |
+| 2ª | 77 667 | **4 646** | 9 |
 
-systemPrompt: [
-  SYSTEM_PROMPT_STATIC,           // identidad + flujo + reglas + tools docs
-  SYSTEM_PROMPT_DYNAMIC_BOUNDARY,
-  buildDynamicSection(),          // solo `Hoy es {{TODAY_CL}}`
-],
-```
+La caída de `cache_write` (25k → 4.6k) confirma que la 2ª corrida leyó el prefijo escrito por la 1ª. El total del prompt = `input + cache_write + cache_read`; casi todo se sirve a 0.1×.
 
-**Cambios concretos:**
-- `lib/system-prompt.ts` — separar `SYSTEM_PROMPT_STATIC` (sin `{{TODAY_CL}}`) y `buildDynamicSection()` (solo la fecha del día).
-- `lib/agent.ts:85` — reemplazar `systemPrompt: buildSystemPrompt()` por el array con boundary.
-- `lib/agent.ts:178` — loggear `usage.cache_read_input_tokens` y `cache_creation_input_tokens` desde el `result` message para verificar hits.
-
-**Verificación:** correr `tsx scripts/smoke-mcp-agent.ts` dos veces seguidas — la segunda corrida debe mostrar `cache_read > 2000`.
-
-**Trampa:** cualquier byte que cambie en `SYSTEM_PROMPT_STATIC` invalida el cache. Documentar en comentario que nada con `process.env.*` o timestamps puede vivir antes del boundary.
+**Trampa:** cualquier byte que cambie en `SYSTEM_PROMPT_STATIC` invalida el cache completo — todo lo dinámico va en `buildDynamicSection()`, después del boundary. El cache es efímero (TTL ~5 min): si entre turnos pasa más que eso, la siguiente request vuelve a escribir.
 
 ---
 

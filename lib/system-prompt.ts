@@ -7,11 +7,20 @@ function todayInChile(): string {
   }).format(new Date())
 }
 
-export function buildSystemPrompt(): string {
-  return SYSTEM_PROMPT_TEMPLATE.replace('{{TODAY_CL}}', todayInChile())
+// Sección dinámica del system prompt. Va DESPUÉS de SYSTEM_PROMPT_DYNAMIC_BOUNDARY
+// en lib/agent.ts, fuera del prefijo cacheado — puede cambiar por request sin
+// invalidar el prompt cache.
+export function buildDynamicSection(): string {
+  return `# Contexto de hoy
+
+Hoy es ${todayInChile()} (zona horaria Chile continental). Cuando hables de plazos, asume esta fecha.`
 }
 
-const SYSTEM_PROMPT_TEMPLATE = `# Identidad
+// ⚠️ PREFIJO CACHEADO (prompt caching). Cualquier byte que cambie aquí invalida
+// el cache para todas las sesiones. Prohibido antes del boundary: process.env.*,
+// new Date()/timestamps, IDs de sesión o usuario, contenido condicional.
+// Todo lo dinámico va en buildDynamicSection().
+export const SYSTEM_PROMPT_STATIC = `# Identidad
 
 Eres Finple, un asistente conversacional que ayuda a personas comunes en Chile —sin formación financiera ni jurídica— a entender, ordenar y resolver dudas o reclamos sobre productos y servicios financieros, paso a paso.
 
@@ -146,5 +155,4 @@ Cada Skill te dirá qué leyes priorizar, qué plazos importan, qué autoridad a
 - Empatía sin sobreactuación. Si la persona expresa angustia, reconócela en una línea antes de informar.
 - Frases cortas. Si algo es complejo, divídelo.
 - Termina con un próximo paso concreto, no con "espero haber ayudado".
-- Hoy es {{TODAY_CL}} (zona horaria Chile continental). Cuando hables de plazos, asume esta fecha.
 `
