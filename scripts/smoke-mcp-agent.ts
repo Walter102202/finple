@@ -5,7 +5,7 @@ import { runFinpleAgent } from '../lib/agent'
 
 async function main() {
   const message =
-    'Encontré una fintech que ofrece 30% mensual garantizado. ¿Qué dice la NCG 502 del CMF sobre los registros que debe tener una fintech para ofrecer servicios en Chile?'
+    'una fintech me promete 30% mensual de rentabilidad sin riesgo, ¿está autorizada por la CMF?'
   console.log('--- Agent run ---')
   console.log('User message:', message)
   console.log('---')
